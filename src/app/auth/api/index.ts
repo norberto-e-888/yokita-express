@@ -25,6 +25,10 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		.patch(deps.authController.handleRecoverAccount)
 
 	router
+		.route('/reset-password/:via/:info/:code')
+		.patch(deps.authController.handleResetPasword)
+
+	router
 		.route('/refresh')
 		.get(deps.endUserAuthenticate, deps.authController.handleRefreshAccessToken)
 

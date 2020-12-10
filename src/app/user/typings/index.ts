@@ -54,6 +54,7 @@ export interface UserDocument extends User, Document {
 	setCode: UserMethodSetCode
 	isPasswordValid: UserMethodIsPasswordValid
 	verifyInfo: UserMethodVerifyInfo
+	resetPassword: UserMethodResetPassword
 }
 
 export interface UserModel extends Model<UserDocument> {
@@ -106,6 +107,12 @@ export type UserMethodVerifyInfo = (
 export type VerifyInfoOptions = {
 	throwIfInvalid: boolean
 }
+
+export type UserMethodResetPassword = (
+	this: UserDocument,
+	triedCode: string,
+	newPassword: string
+) => Promise<UserDocument | void>
 
 export type CreateUserDto = {
 	name: UserName

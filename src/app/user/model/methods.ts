@@ -3,6 +3,7 @@ import brcrypt from 'bcryptjs'
 import {
 	UserMethodIsPasswordValid,
 	UserMethodSetCode,
+	UserMethodResetPassword,
 	UserMethodVerifyInfo
 } from '../typings'
 
@@ -65,4 +66,28 @@ export const verifyInfo: UserMethodVerifyInfo = async function (
 	}
 
 	return this
+}
+
+export const resetPassword: UserMethodResetPassword = async function (
+	triedCode,
+	newPassword
+) {
+	if (!this.passwordResetCode) return
+	if (this.passwordResetCode.expiration.getTime() < Date.now()) {
+		throw new AppError('Expired code', 400)
+	}
+
+	const isCodeValid = await brcrypt.compare(
+		triedCode,
+		this.passwordResetCode.value
+	)
+
+	if (isCodeValid) {
+		this.password = newPassword
+		this.passwordResetCode = undefined
+		await this.save()
+		return this
+	} else {
+		throw new AppError('Invalid code', 403)
+	}
 }

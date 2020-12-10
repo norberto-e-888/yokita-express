@@ -3,7 +3,7 @@ import { MongooseSchemaDefinition } from '@yokita/common'
 import { userNameSchema, userCodeSchema, userPhoneSchema } from './sub-schemas'
 import { handlePreSave } from './hooks'
 import { isEmailInUse } from './statics'
-import { setCode, isPasswordValid, verifyInfo } from './methods'
+import { setCode, isPasswordValid, verifyInfo, resetPassword } from './methods'
 import { User, UserDocument, UserModel, UserRole } from '../typings'
 import { VALID_EMAIL_REGEX } from '../../../constants'
 
@@ -97,5 +97,6 @@ userSchema.statics.isEmailInUse = isEmailInUse
 userSchema.methods.setCode = setCode
 userSchema.methods.isPasswordValid = isPasswordValid
 userSchema.methods.verifyInfo = verifyInfo
+userSchema.methods.resetPassword = resetPassword
 
 export default model<UserDocument, UserModel>('User', userSchema)

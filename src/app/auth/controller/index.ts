@@ -95,6 +95,26 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleResetPasword(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const authResult = await deps.authService.resetPassword(
+				req.params.info as string,
+				req.params.via as 'email' | 'sms',
+				req.params.code as string,
+				req.body.newPassword as string,
+				req.ip
+			)
+
+			return _sendAuthenticationResult(res, authResult)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleRefreshAccessToken(
 		req: Request,
 		res: Response,
@@ -190,6 +210,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleRefreshAccessToken,
 		handleGetCurrentUser,
 		handleVerifyUserInfo,
+		handleResetPasword,
 		handleRecoverAccount,
 		protectRoleSetting,
 		checkBlacklist

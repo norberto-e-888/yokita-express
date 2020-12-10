@@ -181,12 +181,44 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			throw new AppError('We could not find an account', 404)
 		}
 
-		const code = await user.setCode('passwordResetCode', { save: true })
+		const code = await user.setCode('passwordResetCode', {
+			save: true,
+			expiresIn: 1000 * 60 * 60 * 24 * 2
+		})
+
 		if (via === 'email') {
 			await deps.emailService.sendPasswordResetCode(user, code)
 		} else {
 			await deps.smsService.sendPasswordResetCode(user, code)
 		}
+	}
+
+	async function resetPassword(
+		info: string,
+		via: 'sms' | 'email',
+		triedCode: string,
+		newPassword: string,
+		ip: string
+	): Promise<AuthenticationResult> {
+		const criteria =
+			via === 'sms'
+				? {
+						'phone.prefix': info.split('-')[0],
+						'phone.value': info.split('-')[1]
+				  }
+				: { email: info }
+
+		const user = await deps.userModel.findOne(criteria)
+		if (!user) {
+			throw new AppError('We could not find an account', 404)
+		}
+
+		const resetUser = await user.resetPassword(triedCode, newPassword)
+		if (!resetUser) {
+			throw new AppError('Invalid user', 400)
+		}
+
+		return _generateAuthenticationResult(user, ip)
 	}
 
 	async function _generateAuthenticationResult(
@@ -237,6 +269,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		refreshAccessToken,
 		blacklistUser,
 		isUserBlacklisted,
+		resetPassword,
 		verifyUserInfo,
 		recoverAccount
 	}
