@@ -1,6 +1,10 @@
 import { AppError, generateCode } from '@yokita/common'
 import brcrypt from 'bcryptjs'
-import { UserMethodIsPasswordValid, UserMethodSetCode } from '../typings'
+import {
+	UserMethodIsPasswordValid,
+	UserMethodSetCode,
+	UserMethodVerifyInfo
+} from '../typings'
 
 export const setCode: UserMethodSetCode = async function (
 	property,
@@ -30,4 +34,35 @@ export const isPasswordValid: UserMethodIsPasswordValid = async function (
 	}
 
 	return isValid
+}
+
+export const verifyInfo: UserMethodVerifyInfo = async function (
+	triedCode,
+	info,
+	options
+) {
+	const code = this[info]
+	if (!code) {
+		throw new AppError('Invalid user', 400)
+	}
+
+	if (code.expiration.getTime() < Date.now()) {
+		throw new AppError('Code expired', 400)
+	}
+
+	const isCodeValid = await brcrypt.compare(triedCode, code.value)
+	if (isCodeValid) {
+		const propertyToUpdate =
+			info === 'phoneVerificationCode' ? 'isPhoneVerified' : 'isEmailVerified'
+
+		this[propertyToUpdate] = true
+		this[info] = undefined
+		await this.save({ validateBeforeSave: false })
+	}
+
+	if (!isCodeValid && options?.throwIfInvalid) {
+		throw new AppError('Invalid code', 403)
+	}
+
+	return this
 }

@@ -54,6 +54,26 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleVerifyUserInfo(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const user = await deps.authService.verifyUserInfo(
+				req.user?.id as string,
+				req.params.info === 'email'
+					? 'emailVerificationCode'
+					: 'phoneVerificationCode',
+				req.params.code as string
+			)
+
+			return res.json(user)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleRefreshAccessToken(
 		req: Request,
 		res: Response,
@@ -89,7 +109,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		next: NextFunction
 	): void {
 		try {
-			const payload: SignUpDto = req.body
+			const payload: SignUpDto & { role: UserRole } = req.body
 			const isUnknownOrForbiddenRoleBeingSet =
 				payload.role &&
 				!ALLOWED_ROLES.includes(
@@ -148,6 +168,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleSignOut,
 		handleRefreshAccessToken,
 		handleGetCurrentUser,
+		handleVerifyUserInfo,
 		protectRoleSetting,
 		checkBlacklist
 	}

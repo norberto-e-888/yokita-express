@@ -17,6 +17,10 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		.patch(deps.endUserAuthenticate, deps.authController.handleSignOut)
 
 	router
+		.route('/verify/:info/:code')
+		.patch(deps.endUserAuthenticate, deps.authController.handleVerifyUserInfo)
+
+	router
 		.route('/refresh')
 		.get(deps.endUserAuthenticate, deps.authController.handleRefreshAccessToken)
 

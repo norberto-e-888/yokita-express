@@ -98,6 +98,22 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		return _generateAccessToken(userDocument.toObject())
 	}
 
+	async function verifyUserInfo(
+		userId: string,
+		propertyToVerify: 'phoneVerificationCode' | 'emailVerificationCode',
+		triedCode: string
+	): Promise<UserDocument> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		const verifiedUser = await user.verifyInfo(triedCode, propertyToVerify, {
+			throwIfInvalid: true
+		})
+
+		return verifiedUser.toObject()
+	}
+
 	async function blacklistUser(userId: string, ip: string): Promise<void> {
 		eventEmitter.emit(redisEvents.addIPToBlacklist, ip)
 		const session = await deps.userModel.db.startSession()
@@ -191,7 +207,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		signOut,
 		refreshAccessToken,
 		blacklistUser,
-		isUserBlacklisted
+		isUserBlacklisted,
+		verifyUserInfo
 	}
 }
 
