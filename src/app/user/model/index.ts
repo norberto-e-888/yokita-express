@@ -48,6 +48,10 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		type: Boolean,
 		default: false
 	},
+	isPhoneVerified: {
+		type: Boolean,
+		default: false
+	},
 	emailVerificationCode: {
 		type: userCodeSchema
 	},

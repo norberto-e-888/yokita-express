@@ -13,6 +13,7 @@ export interface User extends CommonProperties {
 	phoneVerificationCode?: UserCode
 	passwordResetCode?: UserCode
 	isEmailVerified: boolean
+	isPhoneVerified: boolean
 	isBlocked: boolean
 }
 
