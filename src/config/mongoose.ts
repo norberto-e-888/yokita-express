@@ -9,15 +9,15 @@ export default async ({
 	useNewUrlParser,
 	useCreateIndex,
 	useFindAndModify,
-	useUnifiedTopology,
+	useUnifiedTopology
 }: MongooseConfigOptions): Promise<Db> => {
 	const {
-		connection: { db },
+		connection: { db }
 	} = await mongoose.connect(mongoDbUri, {
 		useNewUrlParser,
 		useCreateIndex,
 		useFindAndModify,
-		useUnifiedTopology,
+		useUnifiedTopology
 	})
 
 	return db

@@ -14,7 +14,12 @@ import {
 } from '../typings'
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
-import { redisEvents, redisService, RedisService } from '../../../services'
+import {
+	emailEvents,
+	redisEvents,
+	redisService,
+	RedisService
+} from '../../../services'
 import {
 	BlacklistEntryModel,
 	BlacklistEntryCreateDTO
@@ -32,7 +37,9 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			returnPlainObject: false
 		})) as UserDocument
 
-		return await _generateAuthenticationResult(newUser, ipAddress)
+		const authResult = await _generateAuthenticationResult(newUser, ipAddress)
+		deps.eventEmitter.emit(emailEvents.sendVerfication, newUser)
+		return authResult
 	}
 
 	async function signIn(

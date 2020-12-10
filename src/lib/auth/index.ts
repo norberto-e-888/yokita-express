@@ -19,7 +19,7 @@ export const endUserAuthenticate = authenticate({
 	decodedJWTUserPropertyKey: 'user',
 	isProtected: true,
 	ignoreExpirationURLs: ['/auth/refresh'],
-	limitToRoles: [UserRole.Customer, UserRole.Company]
+	limitToRoles: [UserRole.Customer]
 })
 
 export const populateUser = authenticate({

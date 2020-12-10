@@ -18,7 +18,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		next: NextFunction
 	): Promise<Response | void> {
 		try {
-			console.log(req.body)
 			const authResult = await deps.authService.signUp(req.body, req.ip)
 			return _sendAuthenticationResult(res, authResult, true)
 		} catch (error) {

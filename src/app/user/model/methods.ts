@@ -4,7 +4,7 @@ import { UserMethodIsPasswordValid, UserMethodSetCode } from '../typings'
 
 export const setCode: UserMethodSetCode = async function (
 	property,
-	{ save = true, expiresIn = 1000 * 60 * 60 }
+	{ save = true, expiresIn = 1000 * 60 * 60, session }
 ) {
 	const code = generateCode(6, { posibilidadesIguales: true, chars: 'Aa#' })
 	const codeHash = await brcrypt.hash(code, 4)
@@ -13,8 +13,8 @@ export const setCode: UserMethodSetCode = async function (
 		expiration: new Date(Date.now() + expiresIn)
 	}
 
-	if (save) {
-		await this.save({ validateBeforeSave: false })
+	if (save || session) {
+		await this.save({ validateBeforeSave: false, session })
 	}
 
 	return code

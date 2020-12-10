@@ -23,6 +23,16 @@ if (!jwtSecretRefreshToken) {
 	throw new Error('JWT_SECRET_REFRESH_TOKEN is not set.')
 }
 
+const sendGridApiKey = process.env.SENDGRID_API_KEY
+if (!sendGridApiKey) {
+	throw new Error('SENDGRID_API_KEY is not set.')
+}
+
+const sendGridDomain = process.env.SENDGRID_FROM
+if (!sendGridDomain) {
+	throw new Error('SENDGRID_FROM is not set.')
+}
+
 export default {
 	nodeEnv,
 	port,
@@ -33,5 +43,9 @@ export default {
 		jwtSecretAccessToken,
 		jwtSecretRefreshToken
 	},
-	clientUrl: process.env.CLIENT_URL as string
+	clientUrl: process.env.CLIENT_URL as string,
+	sendgrid: {
+		apiKey: sendGridApiKey,
+		from: sendGridDomain
+	}
 }

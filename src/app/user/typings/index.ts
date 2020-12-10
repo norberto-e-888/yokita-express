@@ -1,5 +1,5 @@
 import { CommonProperties } from '@yokita/common'
-import { Document, Model, Types } from 'mongoose'
+import { ClientSession, Document, Model, Types } from 'mongoose'
 
 export interface User extends CommonProperties {
 	name: UserName
@@ -16,8 +16,7 @@ export interface User extends CommonProperties {
 
 export enum UserRole {
 	Admin = 'admin',
-	Customer = 'customer',
-	Company = 'company'
+	Customer = 'customer'
 }
 
 export type OmittedUserProperties =
@@ -56,8 +55,9 @@ export type DoesEmailExistOptions = {
 }
 
 export type SetCodeOptions = {
-	save: boolean
-	expiresIn: number
+	save?: boolean
+	expiresIn?: number
+	session?: ClientSession
 }
 
 export type SetCodeProperties = 'emailVerificationCode' | 'passwordResetCode'
