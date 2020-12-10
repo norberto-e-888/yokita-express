@@ -4,11 +4,13 @@ import { ClientSession, Document, Model, Types } from 'mongoose'
 export interface User extends CommonProperties {
 	name: UserName
 	email: string
+	phone?: UserPhone
 	password: string
 	role: UserRole
 	dob?: Date
 	refreshToken?: string
 	emailVerificationCode?: UserCode
+	phoneVerificationCode?: UserCode
 	passwordResetCode?: UserCode
 	isEmailVerified: boolean
 	isBlocked: boolean
@@ -23,6 +25,7 @@ export type OmittedUserProperties =
 	| 'password'
 	| 'refreshToken'
 	| 'emailVerificationCode'
+	| 'phoneVerificationCode'
 	| 'passwordResetCode'
 	| 'isBlocked'
 
@@ -31,6 +34,11 @@ export type UserName = {
 	first: string
 	middle?: string
 	last?: string
+}
+
+export type UserPhone = {
+	prefix: string
+	value: string
 }
 
 export type UserCode = {
@@ -60,7 +68,11 @@ export type SetCodeOptions = {
 	session?: ClientSession
 }
 
-export type SetCodeProperties = 'emailVerificationCode' | 'passwordResetCode'
+export type SetCodeProperties =
+	| 'emailVerificationCode'
+	| 'phoneVerificationCode'
+	| 'passwordResetCode'
+
 export type UserStaticIsEmailInUser = (
 	this: UserModel,
 	email: string

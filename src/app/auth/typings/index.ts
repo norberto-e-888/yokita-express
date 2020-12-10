@@ -1,11 +1,11 @@
-import { User, UserName, UserRole } from '../../user/typings'
+import { User, UserName, UserPhone } from '../../user/typings'
 
 export type SignUpDto = {
 	name: UserName
 	email: string
 	password: string
+	phone?: UserPhone
 	dob?: Date
-	role: UserRole
 }
 
 export type SignInDto = {

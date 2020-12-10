@@ -15,10 +15,10 @@ import {
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
 import {
-	emailEvents,
 	redisEvents,
 	redisService,
-	RedisService
+	RedisService,
+	verificationEvents
 } from '../../../services'
 import {
 	BlacklistEntryModel,
@@ -38,7 +38,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})) as UserDocument
 
 		const authResult = await _generateAuthenticationResult(newUser, ipAddress)
-		deps.eventEmitter.emit(emailEvents.sendVerfication, newUser)
+		deps.eventEmitter.emit(verificationEvents.sendVerificationCodes, newUser)
 		return authResult
 	}
 

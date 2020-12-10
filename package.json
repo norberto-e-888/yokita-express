@@ -25,7 +25,8 @@
 		"helmet": "^4.2.0",
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^5.10.18",
-		"redis": "^3.0.2"
+		"redis": "^3.0.2",
+		"twilio": "^3.54.0"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.2",

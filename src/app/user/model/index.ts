@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose'
 import { MongooseSchemaDefinition } from '@yokita/common'
-import { userNameSchema, userCodeSchema } from './sub-schemas'
+import { userNameSchema, userCodeSchema, userPhoneSchema } from './sub-schemas'
 import { handlePreSave } from './hooks'
 import { isEmailInUse } from './statics'
 import { setCode, isPasswordValid } from './methods'
@@ -26,6 +26,9 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		trim: true,
 		required: true
 	},
+	phone: {
+		type: userPhoneSchema
+	},
 	dob: {
 		type: Date,
 		validate: [
@@ -48,6 +51,9 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	emailVerificationCode: {
 		type: userCodeSchema
 	},
+	phoneVerificationCode: {
+		type: userCodeSchema
+	},
 	passwordResetCode: {
 		type: userCodeSchema
 	},
@@ -68,6 +74,7 @@ const userSchema = new Schema(userSchemaDefinition, {
 			password: undefined,
 			refreshToken: undefined,
 			emailVerificationCode: undefined,
+			phoneVerificationCode: undefined,
 			passwordResetCode: undefined,
 			isBlocked: undefined,
 			_id: undefined,

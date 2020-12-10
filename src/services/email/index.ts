@@ -42,7 +42,7 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 
 export const emailService = emailServiceFactory({ sendgridClient })
 export const emailEvents = {
-	sendVerfication: 'sendEmailVerification'
+	sendVerification: 'sendEmailVerification'
 }
 
 export type EmailService = ReturnType<typeof emailServiceFactory>

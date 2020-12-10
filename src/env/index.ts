@@ -33,6 +33,21 @@ if (!sendGridDomain) {
 	throw new Error('SENDGRID_FROM is not set.')
 }
 
+const twilioSid = process.env.TWILIO_SID
+if (!twilioSid) {
+	throw new Error('TWILIO_SID is not set.')
+}
+
+const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN
+if (!twilioAuthToken) {
+	throw new Error('TWILIO_AUTH_TOKEN is not set.')
+}
+
+const twilioNumber = process.env.TWILIO_NUMBER
+if (!twilioNumber) {
+	throw new Error('TWILIO_NUMBER is not set.')
+}
+
 export default {
 	nodeEnv,
 	port,
@@ -47,5 +62,10 @@ export default {
 	sendgrid: {
 		apiKey: sendGridApiKey,
 		from: sendGridDomain
+	},
+	twilio: {
+		sid: twilioSid,
+		authToken: twilioAuthToken,
+		number: twilioNumber
 	}
 }

@@ -1,6 +1,6 @@
 import { MongooseSchemaDefinition } from '@yokita/common'
 import { Schema } from 'mongoose'
-import { UserCode, UserName } from '../typings'
+import { UserCode, UserName, UserPhone } from '../typings'
 
 const userNameSchemaDefinition: MongooseSchemaDefinition<UserName> = {
 	first: {
@@ -15,6 +15,23 @@ const userNameSchemaDefinition: MongooseSchemaDefinition<UserName> = {
 }
 
 export const userNameSchema = new Schema(userNameSchemaDefinition, {
+	_id: false,
+	id: false
+})
+
+const userPhoneSchemaDefinition: MongooseSchemaDefinition<UserPhone> = {
+	value: {
+		type: String,
+		required: true
+	},
+	prefix: {
+		type: String,
+		required: true,
+		validate: [{ validator: (val: string) => val.charAt(0) === '+' }]
+	}
+}
+
+export const userPhoneSchema = new Schema(userPhoneSchemaDefinition, {
 	_id: false,
 	id: false
 })
