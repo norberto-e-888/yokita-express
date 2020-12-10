@@ -21,6 +21,10 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		.patch(deps.endUserAuthenticate, deps.authController.handleVerifyUserInfo)
 
 	router
+		.route('/recover/:via/:info')
+		.patch(deps.authController.handleRecoverAccount)
+
+	router
 		.route('/refresh')
 		.get(deps.endUserAuthenticate, deps.authController.handleRefreshAccessToken)
 

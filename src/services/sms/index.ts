@@ -18,6 +18,14 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		}
 	}
 
+	async function sendPasswordResetCode(
+		user: UserDocument,
+		code: string
+	): Promise<void> {
+		if (!user.phone) return
+		await _send(user.phone, `Your account recovery code is ${code}`)
+	}
+
 	async function _send(to: UserPhone, body: string): Promise<void> {
 		try {
 			await deps.twilioClient.messages.create({
@@ -30,7 +38,7 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		}
 	}
 
-	return { handleSendVerification }
+	return { handleSendVerification, sendPasswordResetCode }
 }
 
 export const smsService = smsServiceFactory({ twilioClient })

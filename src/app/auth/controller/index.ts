@@ -74,6 +74,27 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleRecoverAccount(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			await deps.authService.recoverAccount(
+				req.params.info as string,
+				req.params.via as 'email' | 'sms'
+			)
+
+			return res.send(
+				`Check your ${
+					req.params.via === 'email' ? 'email' : 'phone'
+				} for a password reset code`
+			)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleRefreshAccessToken(
 		req: Request,
 		res: Response,
@@ -169,6 +190,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleRefreshAccessToken,
 		handleGetCurrentUser,
 		handleVerifyUserInfo,
+		handleRecoverAccount,
 		protectRoleSetting,
 		checkBlacklist
 	}

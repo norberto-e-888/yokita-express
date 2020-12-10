@@ -15,9 +15,13 @@ import {
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
 import {
+	emailService,
+	EmailService,
 	redisEvents,
 	redisService,
 	RedisService,
+	smsService,
+	SmsService,
 	verificationEvents
 } from '../../../services'
 import {
@@ -160,6 +164,31 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		return !!(await deps.blacklistModel.findOne({ user }))
 	}
 
+	async function recoverAccount(
+		info: string,
+		via: 'sms' | 'email'
+	): Promise<void> {
+		const criteria =
+			via === 'sms'
+				? {
+						'phone.prefix': info.split('-')[0],
+						'phone.value': info.split('-')[1]
+				  }
+				: { email: info }
+
+		const user = await deps.userModel.findOne(criteria)
+		if (!user) {
+			throw new AppError('We could not find an account', 404)
+		}
+
+		const code = await user.setCode('passwordResetCode', { save: true })
+		if (via === 'email') {
+			await deps.emailService.sendPasswordResetCode(user, code)
+		} else {
+			await deps.smsService.sendPasswordResetCode(user, code)
+		}
+	}
+
 	async function _generateAuthenticationResult(
 		userDocument: UserDocument,
 		ip: string
@@ -208,7 +237,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		refreshAccessToken,
 		blacklistUser,
 		isUserBlacklisted,
-		verifyUserInfo
+		verifyUserInfo,
+		recoverAccount
 	}
 }
 
@@ -219,7 +249,9 @@ export const authService = authServiceFactory({
 	bcrypt,
 	redisService,
 	blacklistModel,
-	eventEmitter
+	eventEmitter,
+	smsService,
+	emailService
 })
 
 export type AuthService = ReturnType<typeof authServiceFactory>
@@ -231,4 +263,6 @@ export interface AuthServiceDependencies {
 	redisService: RedisService
 	blacklistModel: BlacklistEntryModel
 	eventEmitter: EventEmitter
+	smsService: SmsService
+	emailService: EmailService
 }

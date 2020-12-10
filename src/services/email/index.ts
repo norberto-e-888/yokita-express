@@ -25,6 +25,18 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 		}
 	}
 
+	async function sendPasswordResetCode(
+		user: UserDocument,
+		code: string
+	): Promise<void> {
+		await _send({
+			to: user.email,
+			from: env.sendgrid.from,
+			text: `Your account recovery code is ${code}`,
+			subject: 'Boilerplate password reset'
+		})
+	}
+
 	async function _send(data: MailDataRequired): Promise<void> {
 		try {
 			if (!VALID_EMAIL_REGEX.test(data.to as string)) {
@@ -37,7 +49,7 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 		}
 	}
 
-	return { handleSendEmailVerification }
+	return { handleSendEmailVerification, sendPasswordResetCode }
 }
 
 export const emailService = emailServiceFactory({ sendgridClient })
