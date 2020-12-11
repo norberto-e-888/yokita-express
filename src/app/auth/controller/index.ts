@@ -191,26 +191,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
-	function protectFromIncomplete2FA(
-		req: Request,
-		_: Response,
-		next: NextFunction
-	): void {
-		try {
-			if (
-				req.user &&
-				req.user.is2FALoginOnGoing &&
-				!['/auth/2fa', '/auth/current-user'].includes(req.originalUrl)
-			) {
-				throw new AppError('Unauthenticated', 401)
-			}
-
-			next()
-		} catch (error) {
-			return next(error)
-		}
-	}
-
 	async function checkBlacklist(
 		req: Request,
 		_: Response,
@@ -257,7 +237,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleRecoverAccount,
 		handle2FA,
 		protectRoleSetting,
-		protectFromIncomplete2FA,
 		checkBlacklist
 	}
 }
