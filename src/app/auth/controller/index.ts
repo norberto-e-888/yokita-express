@@ -130,6 +130,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 			)
 
 			if (isUserBlacklisted) {
+				throw new AppError('Blocked', 403)
 			}
 
 			const newAccessToken = await deps.authService.refreshAccessToken(
