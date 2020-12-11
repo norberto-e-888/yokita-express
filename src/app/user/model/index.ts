@@ -73,7 +73,7 @@ const userSchema = new Schema(userSchemaDefinition, {
 	toObject: {
 		virtuals: true,
 		getters: true,
-		transform: (_: UserDocument, obj: User) => ({
+		transform: (_: UserDocument, obj: User): Partial<User> => ({
 			...obj,
 			password: undefined,
 			refreshToken: undefined,
