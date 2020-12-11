@@ -177,7 +177,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		if (user.isEmailVerified && propertyToVerify === 'emailVerificationCode') {
-			throw new AppError('Your phone is already verified', 400)
+			throw new AppError('Your email is already verified', 400)
 		}
 
 		const verifiedUser = await user.verifyInfo(triedCode, propertyToVerify, {
