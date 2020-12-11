@@ -91,6 +91,11 @@ const userSchema = new Schema(userSchemaDefinition, {
 	}
 })
 
+userSchema.index(
+	{ 'phone.prefix': 1, 'phone.value': 1 },
+	{ unique: true, sparse: true }
+)
+
 userSchema.pre('save', handlePreSave)
 
 userSchema.statics.isEmailInUse = isEmailInUse

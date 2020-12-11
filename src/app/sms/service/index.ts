@@ -12,7 +12,10 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 				expiresIn: 1000 * 60 * 60 * 24 * 2
 			})
 
-			await _send(user.phone, `Your verification code is ${code}`)
+			await _send(
+				user.phone,
+				`Your verification code for Boilerplate is ${code}`
+			)
 		} catch (error) {
 			console.error(error)
 		}
@@ -23,7 +26,10 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		code: string
 	): Promise<void> {
 		if (!user.phone) return
-		await _send(user.phone, `Your account recovery code is ${code}`)
+		await _send(
+			user.phone,
+			`Your account recovery code for your Boilerplate account is ${code}`
+		)
 	}
 
 	async function _send(to: UserPhone, body: string): Promise<void> {
