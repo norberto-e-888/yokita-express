@@ -78,7 +78,7 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 			return val
 		}
 	},
-	is2FAOnGoing: {
+	is2FALoginOnGoing: {
 		type: Boolean,
 		default: false
 	}

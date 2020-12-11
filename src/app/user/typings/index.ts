@@ -17,7 +17,7 @@ export interface User extends CommonProperties {
 	isPhoneVerified: boolean
 	isBlocked: boolean
 	is2FAEnabled: boolean
-	is2FAOnGoing: boolean
+	is2FALoginOnGoing: boolean
 }
 
 export enum UserRole {

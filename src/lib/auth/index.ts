@@ -22,7 +22,7 @@ export const endUserAuthenticate = authenticate({
 	limitToRoles: [UserRole.Customer],
 	extraCondition: (user: UserPlainObject, req) =>
 		!(
-			user.is2FAOnGoing &&
+			user.is2FALoginOnGoing &&
 			![
 				'/auth/2fa',
 				'/auth/current-user',

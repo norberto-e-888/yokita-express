@@ -63,11 +63,11 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 			const twoFactorAuthToken = _generate2FAToken({ ip: ipAddress, code })
 			user.twoFactorAuthToken = twoFactorAuthToken
-			user.is2FAOnGoing = true
+			user.is2FALoginOnGoing = true
 			await user.save({ validateBeforeSave: false })
 			await deps.smsService.send2FACode(user, code)
 		} else {
-			user.is2FAOnGoing = false
+			user.is2FALoginOnGoing = false
 			await user.save({ validateBeforeSave: false })
 		}
 
@@ -83,7 +83,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			failIfNotFound: true
 		})) as UserDocument
 
-		if (!user.twoFactorAuthToken || !user.is2FAOnGoing) {
+		if (!user.twoFactorAuthToken || !user.is2FALoginOnGoing) {
 			throw new AppError('Invalid user', 400)
 		}
 
@@ -96,7 +96,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		if (decodedToken.ip !== ipAddress) {
 			user.twoFactorAuthToken = undefined
 			user.refreshToken = undefined
-			user.is2FAOnGoing = false
+			user.is2FALoginOnGoing = false
 			await user.save({ validateBeforeSave: false })
 			throw new AppError('Invalid request', 403)
 		}
@@ -104,7 +104,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		if (decodedToken.exp * 1000 < Date.now()) {
 			user.twoFactorAuthToken = undefined
 			user.refreshToken = undefined
-			user.is2FAOnGoing = false
+			user.is2FALoginOnGoing = false
 			await user.save({ validateBeforeSave: false })
 			throw new AppError('Expired 2FA token', 400)
 		}
@@ -114,7 +114,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		user.twoFactorAuthToken = undefined
-		user.is2FAOnGoing = false
+		user.is2FALoginOnGoing = false
 		user.isPhoneVerified = true
 		user.phoneVerificationCode = undefined
 		await user.save({ validateBeforeSave: false })
@@ -125,7 +125,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		await deps.userModel.findByIdAndUpdate(userId, {
 			refreshToken: undefined,
 			twoFactorAuthToken: undefined,
-			is2FAOnGoing: false
+			is2FALoginOnGoing: false
 		})
 	}
 

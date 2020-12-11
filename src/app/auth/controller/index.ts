@@ -199,7 +199,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		try {
 			if (
 				req.user &&
-				req.user.is2FAOnGoing &&
+				req.user.is2FALoginOnGoing &&
 				!['/auth/2fa', '/auth/current-user'].includes(req.originalUrl)
 			) {
 				throw new AppError('Unauthenticated', 401)
