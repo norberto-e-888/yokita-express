@@ -5,8 +5,7 @@ import { AdminAuth, adminAuthenticate } from '../../../lib'
 
 export const userApiFactory = (deps: UserApiFactoryDependencies) => {
 	const router = Router()
-	router.use(deps.adminAuthenticate)
-	router.use(deps.userCrudApi)
+	router.use(deps.adminAuthenticate, deps.userCrudApi)
 	return router
 }
 
