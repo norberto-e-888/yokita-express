@@ -4,14 +4,9 @@ import { twilioClient } from '../../../lib'
 import { UserDocument, UserPhone } from '../../user'
 
 export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
-	async function sendVerification(user: UserDocument) {
+	async function sendVerification(user: UserDocument, code: string) {
 		try {
 			if (!user.phone) return
-			const code = await user.setCode('phoneVerificationCode', {
-				save: true,
-				expiresIn: 1000 * 60 * 60 * 24 * 2
-			})
-
 			await _send(
 				user.phone,
 				`Your verification code for Boilerplate is ${code}`

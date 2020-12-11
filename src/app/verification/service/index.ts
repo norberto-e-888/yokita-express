@@ -7,8 +7,17 @@ export const verificationServiceFactory = (
 ) => {
 	async function sendVerificationCodes(user: UserDocument): Promise<void> {
 		try {
-			await deps.emailService.sendEmailVerification(user)
-			await deps.smsService.sendVerification(user)
+			const emailCode = await user.setCode('emailVerificationCode', {
+				save: false
+			})
+
+			const smsCode = await user.setCode('phoneVerificationCode', {
+				save: false
+			})
+
+			await user.save({ validateBeforeSave: false })
+			await deps.emailService.sendEmailVerification(user, emailCode)
+			await deps.smsService.sendVerification(user, smsCode)
 		} catch (error) {
 			console.error(error)
 		}

@@ -5,13 +5,11 @@ import { sendgridClient } from '../../../lib'
 import { UserDocument } from '../../user'
 
 export const emailServiceFactory = (deps: EmailServiceDependencies) => {
-	async function sendEmailVerification(user: UserDocument): Promise<void> {
+	async function sendEmailVerification(
+		user: UserDocument,
+		code: string
+	): Promise<void> {
 		try {
-			const code = await user.setCode('emailVerificationCode', {
-				save: true,
-				expiresIn: 1000 * 60 * 60 * 24 * 2
-			})
-
 			await _send({
 				to: user.email,
 				from: env.sendgrid.from,

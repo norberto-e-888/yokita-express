@@ -18,7 +18,6 @@ import { BlacklistEntryModel } from '../../blacklist/typings'
 import { eventEmitter } from '../../../lib'
 import { SmsService, smsService } from '../../sms'
 import { EmailService, emailService } from '../../email'
-import { verificationEvents } from '../../verification'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(
@@ -31,7 +30,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})) as UserDocument
 
 		const authResult = await _generateAuthenticationResult(newUser, ipAddress)
-		deps.eventEmitter.emit(verificationEvents.sendVerificationCodes, newUser)
 		return authResult
 	}
 
