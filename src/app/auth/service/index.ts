@@ -47,6 +47,10 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			throw new AppError('Invalid credentials.', 401)
 		}
 
+		if (user.isBlocked) {
+			throw new AppError('Blocked', 403)
+		}
+
 		await user.isPasswordValid(credentials.password, { throwIfInvalid: true })
 		return await _generateAuthenticationResult(user, ipAddress)
 	}
