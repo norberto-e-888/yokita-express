@@ -83,7 +83,11 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			failIfNotFound: true
 		})) as UserDocument
 
-		if (!user.twoFactorAuthToken || !user.is2FALoginOnGoing) {
+		if (
+			!user.is2FAEnabled ||
+			!user.twoFactorAuthToken ||
+			!user.is2FALoginOnGoing
+		) {
 			throw new AppError('You are not in process of login', 400)
 		}
 
