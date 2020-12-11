@@ -1,5 +1,5 @@
 import { authenticate } from '@yokita/common'
-import { UserRole } from '../../app/user/typings'
+import { UserPlainObject, UserRole } from '../../app/user/typings'
 import env from '../../env'
 
 export const adminAuthenticate = authenticate({
@@ -19,15 +19,18 @@ export const endUserAuthenticate = authenticate({
 	decodedJWTUserPropertyKey: 'user',
 	isProtected: true,
 	ignoreExpirationURLs: ['/auth/refresh'],
-	limitToRoles: [UserRole.Customer]
+	limitToRoles: [UserRole.Customer],
+	extraCondition: (user: UserPlainObject, req) =>
+		!(
+			user.is2FAOnGoing &&
+			![
+				'/auth/2fa',
+				'/auth/current-user',
+				'/auth/refresh',
+				'/auth/sign-out'
+			].includes(req.originalUrl)
+		)
 })
 
-export const populateUser = authenticate({
-	jwtSecret: env.auth.jwtSecretAccessToken,
-	jwtIn: 'cookies',
-	jwtKeyName: 'jwt',
-	decodedJWTUserPropertyKey: 'user',
-	isProtected: false
-})
-
-export type AuthenticateMiddleware = ReturnType<typeof authenticate>
+export type EndUserAuth = typeof endUserAuthenticate
+export type AdminAuth = typeof adminAuthenticate

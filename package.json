@@ -15,7 +15,7 @@
 	"license": "SEE LICENSE IN LICENSE",
 	"dependencies": {
 		"@sendgrid/mail": "^7.4.0",
-		"@yokita/common": "^1.1.58",
+		"@yokita/common": "^1.1.60",
 		"bcryptjs": "^2.4.3",
 		"cookie-parser": "^1.4.5",
 		"cors": "^2.8.5",

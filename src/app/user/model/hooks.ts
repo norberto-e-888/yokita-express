@@ -14,7 +14,8 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 	if (this.isModified('phone')) {
 		this.isPhoneVerified = false
 		const smsCode = await this.setCode('phoneVerificationCode', {
-			save: false
+			save: false,
+			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
 		smsService.sendVerification(this, smsCode)
@@ -23,7 +24,8 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 	if (this.isModified('email')) {
 		this.isEmailVerified = false
 		const emailCode = await this.setCode('emailVerificationCode', {
-			save: false
+			save: false,
+			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
 		emailService.sendEmailVerification(this, emailCode)

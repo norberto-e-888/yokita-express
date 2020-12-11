@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { AuthenticateMiddleware, endUserAuthenticate } from '../../../lib'
+import { EndUserAuth, endUserAuthenticate } from '../../../lib'
 import authController, { AuthController } from '../controller'
 
 export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
@@ -12,6 +12,10 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		)
 
 	router.route('/sign-in').post(deps.authController.handleSignIn)
+	router
+		.route('/2fa')
+		.post(deps.endUserAuthenticate, deps.authController.handle2FA)
+
 	router
 		.route('/sign-out')
 		.patch(deps.endUserAuthenticate, deps.authController.handleSignOut)
@@ -45,6 +49,6 @@ export default authApiFactory({
 })
 
 export type AuthApiFactoryDependencies = {
-	endUserAuthenticate: AuthenticateMiddleware
+	endUserAuthenticate: EndUserAuth
 	authController: AuthController
 }

@@ -62,7 +62,23 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		type: userCodeSchema
 	},
 	refreshToken: String,
+	twoFactorAuthToken: {
+		type: String,
+		required: false
+	},
 	isBlocked: {
+		type: Boolean,
+		default: false
+	},
+	is2FAEnabled: {
+		type: Boolean,
+		default: false,
+		set: function (this: UserDocument, val: boolean) {
+			if (!this.phone) return false
+			return val
+		}
+	},
+	is2FAOnGoing: {
 		type: Boolean,
 		default: false
 	}
@@ -81,6 +97,7 @@ const userSchema = new Schema(userSchemaDefinition, {
 			phoneVerificationCode: undefined,
 			passwordResetCode: undefined,
 			isBlocked: undefined,
+			twoFactorAuthToken: undefined,
 			_id: undefined,
 			__v: undefined
 		})

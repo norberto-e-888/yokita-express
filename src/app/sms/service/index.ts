@@ -27,6 +27,11 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		)
 	}
 
+	async function send2FACode(user: UserDocument, code: string): Promise<void> {
+		if (!user.phone) return
+		await _send(user.phone, `Your 2FA code is ${code}`)
+	}
+
 	async function _send(to: UserPhone, body: string): Promise<void> {
 		try {
 			await deps.twilioClient.messages.create({
@@ -39,7 +44,7 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		}
 	}
 
-	return { sendVerification, sendPasswordResetCode }
+	return { sendVerification, sendPasswordResetCode, send2FACode }
 }
 
 export default smsServiceFactory({ twilioClient })

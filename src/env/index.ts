@@ -23,6 +23,7 @@ if (!jwtSecretRefreshToken) {
 	throw new Error('JWT_SECRET_REFRESH_TOKEN is not set.')
 }
 
+const jwtSecret2FA = process.env.JWT_SECRET_2FA || jwtSecretRefreshToken
 const sendGridApiKey = process.env.SENDGRID_API_KEY
 if (!sendGridApiKey) {
 	throw new Error('SENDGRID_API_KEY is not set.')
@@ -56,7 +57,8 @@ export default {
 	},
 	auth: {
 		jwtSecretAccessToken,
-		jwtSecretRefreshToken
+		jwtSecretRefreshToken,
+		jwtSecret2FA
 	},
 	clientUrl: process.env.CLIENT_URL as string,
 	sendgrid: {

@@ -42,6 +42,24 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handle2FA(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const authResult = await deps.authService.twoFactorAuthentication(
+				req.user?.id as string,
+				req.ip,
+				req.body.code
+			)
+
+			return _sendAuthenticationResult(res, authResult)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleSignOut(
 		req: Request,
 		res: Response,
@@ -173,6 +191,26 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	function protectFromIncomplete2FA(
+		req: Request,
+		_: Response,
+		next: NextFunction
+	): void {
+		try {
+			if (
+				req.user &&
+				req.user.is2FAOnGoing &&
+				!['/auth/2fa', '/auth/current-user'].includes(req.originalUrl)
+			) {
+				throw new AppError('Unauthenticated', 401)
+			}
+
+			next()
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function checkBlacklist(
 		req: Request,
 		_: Response,
@@ -217,7 +255,9 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleVerifyUserInfo,
 		handleResetPasword,
 		handleRecoverAccount,
+		handle2FA,
 		protectRoleSetting,
+		protectFromIncomplete2FA,
 		checkBlacklist
 	}
 }

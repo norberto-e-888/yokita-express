@@ -6,6 +6,7 @@ export type SignUpDto = {
 	password: string
 	phone?: UserPhone
 	dob?: Date
+	is2FAEnabled?: boolean
 }
 
 export type SignInDto = {
@@ -13,12 +14,17 @@ export type SignInDto = {
 	password: string
 }
 
-export interface AuthenticationResult {
+export type AuthenticationResult = {
 	user: User
 	jwt: string
 	refreshToken: string
 }
 
-export interface RefreshTokenPayload {
+export type RefreshTokenPayload = {
 	ip: string
+}
+
+export type TwoFactorAuthTokenPayload = {
+	ip: string
+	code: string
 }

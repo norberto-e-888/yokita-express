@@ -1,16 +1,21 @@
-import { AppError, GenericFunctionalRepository } from '@yokita/common'
+import {
+	AppError,
+	generateCode,
+	GenericFunctionalRepository
+} from '@yokita/common'
 import jwt from 'jsonwebtoken'
 import { EventEmitter } from 'events'
 import bcrypt from 'bcryptjs'
 import env from '../../../env'
-import { BCrypt, JWT } from '../../../typings'
+import { BCrypt, GenerateCode, JWT } from '../../../typings'
 import { userRepository } from '../../user'
 import { User, UserDocument, UserModel } from '../../user/typings'
 import {
 	AuthenticationResult,
 	RefreshTokenPayload,
 	SignInDto,
-	SignUpDto
+	SignUpDto,
+	TwoFactorAuthTokenPayload
 } from '../typings'
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
@@ -50,12 +55,77 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		await user.isPasswordValid(credentials.password, { throwIfInvalid: true })
+		if (user.is2FAEnabled && user.phone) {
+			const code = deps.generateCode(6, {
+				posibilidadesIguales: true,
+				chars: 'aA#!'
+			})
+
+			const twoFactorAuthToken = _generate2FAToken({ ip: ipAddress, code })
+			user.twoFactorAuthToken = twoFactorAuthToken
+			user.is2FAOnGoing = true
+			await user.save({ validateBeforeSave: false })
+			await deps.smsService.send2FACode(user, code)
+		} else {
+			user.is2FAOnGoing = false
+			await user.save({ validateBeforeSave: false })
+		}
+
+		return await _generateAuthenticationResult(user, ipAddress)
+	}
+
+	async function twoFactorAuthentication(
+		userId: string,
+		ipAddress: string,
+		triedCode: string
+	): Promise<AuthenticationResult> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		if (!user.twoFactorAuthToken || !user.is2FAOnGoing) {
+			throw new AppError('Invalid user', 400)
+		}
+
+		const decodedToken = deps.jwt.verify(
+			user.twoFactorAuthToken,
+			env.auth.jwtSecret2FA,
+			{ ignoreExpiration: true }
+		) as TwoFactorAuthTokenPayload & { exp: number }
+
+		if (decodedToken.ip !== ipAddress) {
+			user.twoFactorAuthToken = undefined
+			user.refreshToken = undefined
+			user.is2FAOnGoing = false
+			await user.save({ validateBeforeSave: false })
+			throw new AppError('Invalid request', 403)
+		}
+
+		if (decodedToken.exp * 1000 < Date.now()) {
+			user.twoFactorAuthToken = undefined
+			user.refreshToken = undefined
+			user.is2FAOnGoing = false
+			await user.save({ validateBeforeSave: false })
+			throw new AppError('Expired 2FA token', 400)
+		}
+
+		if (triedCode !== decodedToken.code) {
+			throw new AppError('Wrong 2FA code', 400)
+		}
+
+		user.twoFactorAuthToken = undefined
+		user.is2FAOnGoing = false
+		user.isPhoneVerified = true
+		user.phoneVerificationCode = undefined
+		await user.save({ validateBeforeSave: false })
 		return await _generateAuthenticationResult(user, ipAddress)
 	}
 
 	async function signOut(userId: string): Promise<void> {
 		await deps.userModel.findByIdAndUpdate(userId, {
-			refreshToken: undefined
+			refreshToken: undefined,
+			twoFactorAuthToken: undefined,
+			is2FAOnGoing: false
 		})
 	}
 
@@ -101,6 +171,14 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		const user = (await deps.userRepository.findById(userId, {
 			failIfNotFound: true
 		})) as UserDocument
+
+		if (user.isPhoneVerified && propertyToVerify === 'phoneVerificationCode') {
+			throw new AppError('Your phone is already verified', 400)
+		}
+
+		if (user.isEmailVerified && propertyToVerify === 'emailVerificationCode') {
+			throw new AppError('Your phone is already verified', 400)
+		}
 
 		const verifiedUser = await user.verifyInfo(triedCode, propertyToVerify, {
 			throwIfInvalid: true
@@ -160,7 +238,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		const resetUser = await user.resetPassword(triedCode, newPassword)
 		if (!resetUser) {
-			throw new AppError('Invalid user', 400)
+			throw new AppError('You did not ask for a password reset code', 400)
 		}
 
 		return _generateAuthenticationResult(user, ip)
@@ -195,6 +273,12 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})
 	}
 
+	function _generate2FAToken(payload: TwoFactorAuthTokenPayload): string {
+		return deps.jwt.sign(payload, env.auth.jwtSecret2FA, {
+			expiresIn: 60 * 60 * 6
+		})
+	}
+
 	return {
 		signUp,
 		signIn,
@@ -202,6 +286,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		refreshAccessToken,
 		resetPassword,
 		verifyUserInfo,
+		twoFactorAuthentication,
 		recoverAccount
 	}
 }
@@ -214,7 +299,8 @@ export default authServiceFactory({
 	blacklistModel,
 	eventEmitter,
 	smsService,
-	emailService
+	emailService,
+	generateCode
 })
 
 export type AuthService = ReturnType<typeof authServiceFactory>
@@ -227,4 +313,5 @@ export interface AuthServiceDependencies {
 	eventEmitter: EventEmitter
 	smsService: SmsService
 	emailService: EmailService
+	generateCode: GenerateCode
 }
