@@ -84,7 +84,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})) as UserDocument
 
 		if (!user.twoFactorAuthToken || !user.is2FALoginOnGoing) {
-			throw new AppError('Invalid user', 400)
+			throw new AppError('You are not in process of login', 400)
 		}
 
 		const decodedToken = deps.jwt.verify(
