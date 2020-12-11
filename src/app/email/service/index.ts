@@ -1,13 +1,11 @@
 import { MailDataRequired, MailService } from '@sendgrid/mail'
-import { UserDocument } from '../../app/user/typings'
-import { VALID_EMAIL_REGEX } from '../../constants'
-import env from '../../env'
-import { sendgridClient } from '../../lib'
+import { VALID_EMAIL_REGEX } from '../../../constants'
+import env from '../../../env'
+import { sendgridClient } from '../../../lib'
+import { UserDocument } from '../../user'
 
 export const emailServiceFactory = (deps: EmailServiceDependencies) => {
-	async function handleSendEmailVerification(
-		user: UserDocument
-	): Promise<void> {
+	async function sendEmailVerification(user: UserDocument): Promise<void> {
 		try {
 			const code = await user.setCode('emailVerificationCode', {
 				save: true,
@@ -49,10 +47,10 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 		}
 	}
 
-	return { handleSendEmailVerification, sendPasswordResetCode }
+	return { sendEmailVerification, sendPasswordResetCode }
 }
 
-export const emailService = emailServiceFactory({ sendgridClient })
+export default emailServiceFactory({ sendgridClient })
 export const emailEvents = {
 	sendVerification: 'sendEmailVerification'
 }

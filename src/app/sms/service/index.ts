@@ -1,10 +1,10 @@
 import { Twilio } from 'twilio'
-import { UserDocument, UserPhone } from '../../app/user/typings'
-import env from '../../env'
-import { twilioClient } from '../../lib'
+import env from '../../../env'
+import { twilioClient } from '../../../lib'
+import { UserDocument, UserPhone } from '../../user'
 
 export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
-	async function handleSendVerification(user: UserDocument) {
+	async function sendVerification(user: UserDocument) {
 		try {
 			if (!user.phone) return
 			const code = await user.setCode('phoneVerificationCode', {
@@ -38,10 +38,10 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		}
 	}
 
-	return { handleSendVerification, sendPasswordResetCode }
+	return { sendVerification, sendPasswordResetCode }
 }
 
-export const smsService = smsServiceFactory({ twilioClient })
+export default smsServiceFactory({ twilioClient })
 export const smsEvents = {
 	sendVerification: 'sendPhoneVerification'
 }

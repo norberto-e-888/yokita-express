@@ -4,7 +4,7 @@ import { EventEmitter } from 'events'
 import bcrypt from 'bcryptjs'
 import env from '../../../env'
 import { BCrypt, JWT } from '../../../typings'
-import { userRepository } from '../../user/repository'
+import { userRepository } from '../../user'
 import { User, UserDocument, UserModel } from '../../user/typings'
 import {
 	AuthenticationResult,
@@ -14,22 +14,11 @@ import {
 } from '../typings'
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
-import {
-	emailService,
-	EmailService,
-	redisEvents,
-	redisService,
-	RedisService,
-	smsService,
-	SmsService,
-	verificationEvents
-} from '../../../services'
-import {
-	BlacklistEntryModel,
-	BlacklistEntryCreateDTO
-} from '../../blacklist/typings'
+import { BlacklistEntryModel } from '../../blacklist/typings'
 import { eventEmitter } from '../../../lib'
-import { ClientSession } from 'mongoose'
+import { SmsService, smsService } from '../../sms'
+import { EmailService, emailService } from '../../email'
+import { verificationEvents } from '../../verification'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(
@@ -118,52 +107,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		return verifiedUser.toObject()
 	}
 
-	async function blacklistUser(userId: string, ip: string): Promise<void> {
-		eventEmitter.emit(redisEvents.addIPToBlacklist, ip)
-		const session = await deps.userModel.db.startSession()
-		try {
-			await session.withTransaction(
-				async () => {
-					const user = (await deps.userRepository.findById(
-						userId
-					)) as UserDocument
-
-					const isUserAlreadyBlacklisted = await isUserBlacklisted(userId)
-					if (isUserAlreadyBlacklisted) {
-						await _addKnownIPOfBlacklistedUser(userId, ip, session)
-					} else {
-						user.isBlocked = true
-						await user.save({ session })
-						await deps.blacklistModel.create<BlacklistEntryCreateDTO>(
-							{
-								user: user.id,
-								ips: [ip]
-							},
-							{ session }
-						)
-					}
-				},
-				{
-					readPreference: 'primary',
-					readConcern: { level: 'local' },
-					writeConcern: { w: 'majority' }
-				}
-			)
-		} catch (error) {
-			console.log(
-				`ERROR BLACKLISTING KNOWN USER OF ID: ${userId} and IP: ${ip}`
-			)
-
-			console.error(error)
-		} finally {
-			session.endSession()
-		}
-	}
-
-	async function isUserBlacklisted(user: string): Promise<boolean> {
-		return !!(await deps.blacklistModel.findOne({ user }))
-	}
-
 	async function recoverAccount(
 		info: string,
 		via: 'sms' | 'email'
@@ -238,18 +181,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 	}
 
-	async function _addKnownIPOfBlacklistedUser(
-		userId: string,
-		ip: string,
-		session?: ClientSession
-	): Promise<void> {
-		await deps.blacklistModel.findOneAndUpdate(
-			{ user: userId },
-			{ $addToSet: { ips: ip } },
-			{ session }
-		)
-	}
-
 	function _generateAccessToken(user: User): string {
 		return deps.jwt.sign({ user }, env.auth.jwtSecretAccessToken, {
 			expiresIn: 60 * 15
@@ -267,20 +198,17 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		signIn,
 		signOut,
 		refreshAccessToken,
-		blacklistUser,
-		isUserBlacklisted,
 		resetPassword,
 		verifyUserInfo,
 		recoverAccount
 	}
 }
 
-export const authService = authServiceFactory({
+export default authServiceFactory({
 	userRepository,
 	userModel,
 	jwt,
 	bcrypt,
-	redisService,
 	blacklistModel,
 	eventEmitter,
 	smsService,
@@ -293,7 +221,6 @@ export interface AuthServiceDependencies {
 	userModel: UserModel
 	jwt: JWT
 	bcrypt: BCrypt
-	redisService: RedisService
 	blacklistModel: BlacklistEntryModel
 	eventEmitter: EventEmitter
 	smsService: SmsService

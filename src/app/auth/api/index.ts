@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { AuthenticateMiddleware, endUserAuthenticate } from '../../../lib'
-import { authController, AuthController } from '../controller'
+import authController, { AuthController } from '../controller'
 
 export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	const router = Router()
@@ -43,6 +43,7 @@ export default authApiFactory({
 	endUserAuthenticate,
 	authController
 })
+
 export type AuthApiFactoryDependencies = {
 	endUserAuthenticate: AuthenticateMiddleware
 	authController: AuthController

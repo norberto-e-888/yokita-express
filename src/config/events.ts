@@ -1,23 +1,18 @@
+import { blacklistEvents, blacklistService } from '../app/blacklist'
+import { emailEvents, emailService } from '../app/email'
+import { smsEvents, smsService } from '../app/sms'
+import { verificationEvents, verificationService } from '../app/verification'
 import { eventEmitter } from '../lib'
-import {
-	emailEvents,
-	emailService,
-	redisEvents,
-	redisService,
-	smsEvents,
-	smsService,
-	verificationService,
-	verificationEvents
-} from '../services'
 
-eventEmitter.on(redisEvents.addIPToBlacklist, redisService.handleBlacklist)
+eventEmitter.on(blacklistEvents.addIPToBlacklist, blacklistService.blacklistIp)
+eventEmitter.on(blacklistEvents.addIPToWhitelist, blacklistService.whitelistIp)
 eventEmitter.on(
 	emailEvents.sendVerification,
-	emailService.handleSendEmailVerification
+	emailService.sendEmailVerification
 )
 
-eventEmitter.on(smsEvents.sendVerification, smsService.handleSendVerification)
+eventEmitter.on(smsEvents.sendVerification, smsService.sendVerification)
 eventEmitter.on(
 	verificationEvents.sendVerificationCodes,
-	verificationService.handleSendVerificationCodes
+	verificationService.sendVerificationCodes
 )

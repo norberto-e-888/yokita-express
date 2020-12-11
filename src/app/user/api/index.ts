@@ -1,6 +1,6 @@
 import { GenericCrudApi, genericCrudApiFactory } from '@yokita/common'
 import { Router } from 'express'
-import { userController } from '../controller'
+import userController from '../controller'
 import { adminAuthenticate, AuthenticateMiddleware } from '../../../lib'
 
 export const userApiFactory = (deps: UserApiFactoryDependencies) => {

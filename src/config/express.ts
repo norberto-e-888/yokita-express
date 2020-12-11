@@ -5,9 +5,10 @@ import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
 import mongoSanitize from 'express-mongo-sanitize'
 import { handle404, handleError } from '@yokita/common'
-import authApi from '../app/auth/api'
-import userApi from '../app/user/api'
-import { authController } from '../app/auth/controller'
+import { authApi } from '../app/auth'
+import { userApi } from '../app/user'
+import { smsApi } from '../app/sms'
+import { authController } from '../app/auth'
 import env from '../env'
 
 export default (app: Express): void => {
@@ -26,6 +27,7 @@ export default (app: Express): void => {
 	app.use(authController.checkBlacklist)
 	app.use('/auth', authApi)
 	app.use('/user', userApi)
+	app.use('/sms', smsApi)
 	app.use(handleError)
 	app.use(handle404)
 }

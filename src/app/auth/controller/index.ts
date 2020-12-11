@@ -4,12 +4,16 @@ import bcrypt from 'bcryptjs'
 import { ALLOWED_ROLES, COOKIE_OPTIONS } from '../../../constants'
 import { BCrypt } from '../../../typings'
 import { User, UserRole } from '../../user/typings'
-import { authService, AuthService } from '../service'
+import authService, { AuthService } from '../service'
 import { AuthenticationResult, SignUpDto } from '../typings'
 import { AppError } from '@yokita/common'
 import { eventEmitter, redisClient } from '../../../lib'
-import { redisEvents } from '../../../services'
 import { RedisClient } from 'redis'
+import {
+	blacklistEvents,
+	blacklistService,
+	BlacklistService
+} from '../../blacklist'
 
 export const authControllerFactory = (deps: AuthControllerDependencies) => {
 	async function handleSignUp(
@@ -121,7 +125,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		next: NextFunction
 	): Promise<Response | void> {
 		try {
-			const isUserBlacklisted = await deps.authService.isUserBlacklisted(
+			const isUserBlacklisted = await deps.blacklistService.isUserBlacklisted(
 				req.user!.id
 			)
 
@@ -158,7 +162,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 				)
 
 			if (isUnknownOrForbiddenRoleBeingSet) {
-				deps.eventEmitter.emit(redisEvents.addIPToBlacklist, req.ip)
+				deps.eventEmitter.emit(blacklistEvents.addIPToBlacklist, req.ip)
 				throw new AppError('Perpetually blocked', 403)
 			}
 
@@ -217,11 +221,12 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 	}
 }
 
-export const authController = authControllerFactory({
+export default authControllerFactory({
 	authService,
 	bcrypt,
 	eventEmitter,
-	redisClient
+	redisClient,
+	blacklistService
 })
 
 export type AuthControllerDependencies = {
@@ -229,6 +234,7 @@ export type AuthControllerDependencies = {
 	bcrypt: BCrypt
 	eventEmitter: EventEmitter
 	redisClient: RedisClient
+	blacklistService: BlacklistService
 }
 
 export type AuthController = ReturnType<typeof authControllerFactory>
