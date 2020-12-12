@@ -48,7 +48,6 @@ export const verifyInfo: UserMethodVerifyInfo = async function (
 	}
 
 	if (code.expiration.getTime() < Date.now()) {
-		console.log(code.expiration.getTime(), Date.now())
 		throw new AppError('Code expired', 400)
 	}
 
