@@ -12,7 +12,7 @@ export const COOKIE_OPTIONS: CookieOptions = {
 	secure: env.nodeEnv === 'production'
 }
 
-export const FORBIDDEN_ROLES: UserRole[] = [UserRole.Admin]
+export const FORBIDDEN_ROLES: UserRole[] = [UserRole.Admin, UserRole.SuperAdmin]
 export const ALLOWED_ROLES: UserRole[] = Object.values(UserRole).filter(
 	(r) => !FORBIDDEN_ROLES.includes(r)
 )
