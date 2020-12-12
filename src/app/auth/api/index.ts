@@ -15,7 +15,7 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		.route('/reset-password/:via/:info/:code')
 		.patch(deps.authController.handleResetPasword)
 
-	// ! Protected routes
+	// ! Protected routes (end user)
 	router.use(deps.endUserAuthenticate)
 	router
 		.route('/verify/:info/:code')
