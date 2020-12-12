@@ -6,7 +6,6 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	const router = Router()
 	router.route('/sign-up').post(deps.authController.handleSignUp)
 	router.route('/sign-in').post(deps.authController.handleSignIn)
-
 	router
 		.route('/recover/:via/:info')
 		.patch(deps.authController.handleRecoverAccount)
