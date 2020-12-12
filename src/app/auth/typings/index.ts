@@ -1,4 +1,4 @@
-import { User, UserName, UserPhone } from '../../user/typings'
+import { User, UserName, UserPhone, UserPlainObject } from '../../user/typings'
 
 export type SignUpDto = {
 	name: UserName
@@ -20,7 +20,7 @@ export type AuthenticationResult = {
 }
 
 export type AccessTokenPayload = {
-	user: User
+	user: Pick<UserPlainObject, 'id' | 'is2FALoginOnGoing'>
 	ip: string
 }
 

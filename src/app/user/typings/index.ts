@@ -22,7 +22,8 @@ export interface User extends CommonProperties {
 
 export enum UserRole {
 	Admin = 'admin',
-	Customer = 'customer'
+	EndUser = 'enduser',
+	SuperAdmin = 'superadmin'
 }
 
 export type OmittedUserProperties =

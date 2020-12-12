@@ -42,7 +42,7 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		type: String,
 		required: true,
 		enum: Object.values(UserRole),
-		default: UserRole.Customer
+		default: UserRole.EndUser
 	},
 	isEmailVerified: {
 		type: Boolean,

@@ -12,6 +12,16 @@ export const adminAuthenticate = authenticate({
 	limitToRoles: [UserRole.Admin]
 })
 
+export const superadminAuthenticate = authenticate({
+	jwtSecret: env.auth.jwtSecretAccessToken,
+	jwtIn: 'cookies',
+	jwtKeyName: 'jwt',
+	decodedJWTUserPropertyKey: 'user',
+	isProtected: true,
+	ignoreExpirationURLs: ['/auth/refresh'],
+	limitToRoles: [UserRole.SuperAdmin]
+})
+
 export const endUserAuthenticate = authenticate({
 	jwtSecret: env.auth.jwtSecretAccessToken,
 	jwtIn: 'cookies',
@@ -19,7 +29,7 @@ export const endUserAuthenticate = authenticate({
 	decodedJWTUserPropertyKey: 'user',
 	isProtected: true,
 	ignoreExpirationURLs: ['/auth/refresh'],
-	limitToRoles: [UserRole.Customer],
+	limitToRoles: [UserRole.EndUser],
 	extraCondition: (user: UserPlainObject, req) =>
 		!(
 			user.is2FALoginOnGoing &&
@@ -34,3 +44,4 @@ export const endUserAuthenticate = authenticate({
 
 export type EndUserAuth = typeof endUserAuthenticate
 export type AdminAuth = typeof adminAuthenticate
+export type SuperAdminAuth = typeof superadminAuthenticate

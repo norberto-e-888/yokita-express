@@ -1,18 +1,18 @@
 import { GenericCrudApi, genericCrudApiFactory } from '@yokita/common'
 import { Router } from 'express'
 import userController from '../controller'
-import { AdminAuth, adminAuthenticate } from '../../../lib'
+import { SuperAdminAuth, superadminAuthenticate } from '../../../lib'
 
 export const userApiFactory = (deps: UserApiFactoryDependencies) => {
 	const router = Router()
-	router.use(deps.adminAuthenticate, deps.userCrudApi)
+	router.use(deps.superadminAuthenticate, deps.userCrudApi)
 	return router
 }
 
 const userCrudApi = genericCrudApiFactory({ controller: userController })
 
-export default userApiFactory({ adminAuthenticate, userCrudApi })
+export default userApiFactory({ superadminAuthenticate, userCrudApi })
 export type UserApiFactoryDependencies = {
-	adminAuthenticate: AdminAuth
+	superadminAuthenticate: SuperAdminAuth
 	userCrudApi: GenericCrudApi
 }

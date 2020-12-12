@@ -169,7 +169,10 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		return _generateAccessToken({
-			user: userDocument.toObject(),
+			user: {
+				id: userDocument.id,
+				is2FALoginOnGoing: userDocument.is2FALoginOnGoing
+			},
 			ip: ipAddress
 		})
 	}
@@ -265,7 +268,10 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		user.refreshToken = await deps.bcrypt.hash(refreshToken, 8)
 		await user.save({ validateBeforeSave: false })
 		const authenticationToken = _generateAccessToken({
-			user: user.toObject(),
+			user: {
+				id: user.id,
+				is2FALoginOnGoing: user.is2FALoginOnGoing
+			},
 			ip
 		})
 
