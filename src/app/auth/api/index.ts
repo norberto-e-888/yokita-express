@@ -4,13 +4,7 @@ import authController, { AuthController } from '../controller'
 
 export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	const router = Router()
-	router
-		.route('/sign-up')
-		.post(
-			deps.authController.protectRoleSetting,
-			deps.authController.handleSignUp
-		)
-
+	router.route('/sign-up').post(deps.authController.handleSignUp)
 	router.route('/sign-in').post(deps.authController.handleSignIn)
 	router
 		.route('/2fa')

@@ -25,6 +25,7 @@ export default (app: Express): void => {
 	app.use(cookieParser())
 	app.use(mongoSanitize())
 	app.use(authController.checkBlacklist)
+	app.use(authController.protectRoleSetting)
 	app.use('/auth', authApi)
 	app.use('/user', userApi)
 	app.use('/sms', smsApi)
