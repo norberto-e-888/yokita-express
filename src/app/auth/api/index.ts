@@ -6,17 +6,6 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	const router = Router()
 	router.route('/sign-up').post(deps.authController.handleSignUp)
 	router.route('/sign-in').post(deps.authController.handleSignIn)
-	router
-		.route('/2fa')
-		.post(deps.endUserAuthenticate, deps.authController.handle2FA)
-
-	router
-		.route('/sign-out')
-		.patch(deps.endUserAuthenticate, deps.authController.handleSignOut)
-
-	router
-		.route('/verify/:info/:code')
-		.patch(deps.endUserAuthenticate, deps.authController.handleVerifyUserInfo)
 
 	router
 		.route('/recover/:via/:info')
@@ -26,13 +15,16 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		.route('/reset-password/:via/:info/:code')
 		.patch(deps.authController.handleResetPasword)
 
+	// ! Protected routes
+	router.use(deps.endUserAuthenticate)
 	router
-		.route('/refresh')
-		.get(deps.endUserAuthenticate, deps.authController.handleRefreshAccessToken)
+		.route('/verify/:info/:code')
+		.patch(deps.authController.handleVerifyUserInfo)
 
-	router
-		.route('/current-user')
-		.get(deps.endUserAuthenticate, deps.authController.handleGetCurrentUser)
+	router.route('/2fa').post(deps.authController.handle2FA)
+	router.route('/sign-out').patch(deps.authController.handleSignOut)
+	router.route('/refresh').get(deps.authController.handleRefreshAccessToken)
+	router.route('/current-user').get(deps.authController.handleGetCurrentUser)
 
 	return router
 }
