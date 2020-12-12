@@ -175,25 +175,31 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 			deps.cacheService.getCachedUser(
 				req.user?.id as string,
 				async (err, data) => {
-					if (err) throw err
+					if (err) return next(err)
 					if (!!data) {
 						return res.json(JSON.parse(data))
 					}
 
 					const freshUserFromDB = (await deps.userRepository.findById(
 						req.user?.id as string,
-						{ failIfNotFound: true }
-					)) as UserDocument
+						{ failIfNotFound: false }
+					)) as UserDocument | undefined
 
-					deps.cacheService.cacheUser(freshUserFromDB.toObject(), (err) => {
-						if (err) {
-							console.error(
-								`There was an error caching user with ID: ${req.user?.id}`
-							)
-						}
+					if (freshUserFromDB) {
+						deps.cacheService.cacheUser(freshUserFromDB.toObject(), (err) => {
+							if (err) {
+								console.error(
+									`There was an error caching user with ID: ${req.user?.id}`
+								)
+							}
 
-						return res.json(freshUserFromDB.toObject())
-					})
+							return res.json(freshUserFromDB.toObject())
+						})
+					} else {
+						return next(
+							new AppError(`No user with ID ${req.user?.id} was found`, 404)
+						)
+					}
 				}
 			)
 		} catch (error) {

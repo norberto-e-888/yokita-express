@@ -4,12 +4,16 @@ import { UserPlainObject } from '../../user'
 
 export const cacheServiceFactory = (deps: ChacheServiceDependencies) => {
 	function cacheUser(user: UserPlainObject, cb?: Callback<number>): boolean {
-		return deps.redisClient.HSET(
-			_buildKey(user.id),
-			'data',
-			JSON.stringify(user),
-			cb
-		)
+		try {
+			return deps.redisClient.HSET(
+				_buildKey(user.id),
+				'data',
+				JSON.stringify(user),
+				cb
+			)
+		} catch (error) {
+			throw error
+		}
 	}
 
 	function getCachedUser(userId: string, cb?: Callback<string>): boolean {
