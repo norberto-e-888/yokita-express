@@ -11,6 +11,7 @@ import { BCrypt, GenerateCode, JWT } from '../../../typings'
 import { userRepository } from '../../user'
 import { User, UserDocument, UserModel } from '../../user/typings'
 import {
+	AccessTokenPayload,
 	AuthenticationResult,
 	RefreshTokenPayload,
 	SignInDto,
@@ -23,6 +24,7 @@ import { BlacklistEntryModel } from '../../blacklist/typings'
 import { eventEmitter } from '../../../lib'
 import { SmsService, smsService } from '../../sms'
 import { EmailService, emailService } from '../../email'
+import { cacheServiceEvents } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(
@@ -131,6 +133,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			twoFactorAuthToken: undefined,
 			is2FALoginOnGoing: false
 		})
+
+		deps.eventEmitter.emit(cacheServiceEvents.invalidateUserCache, userId)
 	}
 
 	async function refreshAccessToken(
@@ -164,7 +168,10 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			throw new AppError('Unauthenticated.', 401)
 		}
 
-		return _generateAccessToken(userDocument.toObject())
+		return _generateAccessToken({
+			user: userDocument.toObject(),
+			ip: ipAddress
+		})
 	}
 
 	async function verifyUserInfo(
@@ -257,7 +264,11 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		const refreshToken = _generateRefreshToken(refreshTokenPayload)
 		user.refreshToken = await deps.bcrypt.hash(refreshToken, 8)
 		await user.save({ validateBeforeSave: false })
-		const authenticationToken = _generateAccessToken(user.toObject())
+		const authenticationToken = _generateAccessToken({
+			user: user.toObject(),
+			ip
+		})
+
 		return {
 			user: user.toObject(),
 			jwt: authenticationToken,
@@ -265,8 +276,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 	}
 
-	function _generateAccessToken(user: User): string {
-		return deps.jwt.sign({ user }, env.auth.jwtSecretAccessToken, {
+	function _generateAccessToken(payload: AccessTokenPayload): string {
+		return deps.jwt.sign(payload, env.auth.jwtSecretAccessToken, {
 			expiresIn: 60 * 15
 		})
 	}

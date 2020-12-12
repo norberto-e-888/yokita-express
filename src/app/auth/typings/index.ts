@@ -19,6 +19,11 @@ export type AuthenticationResult = {
 	refreshToken: string
 }
 
+export type AccessTokenPayload = {
+	user: User
+	ip: string
+}
+
 export type RefreshTokenPayload = {
 	ip: string
 }

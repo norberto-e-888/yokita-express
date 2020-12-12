@@ -1,4 +1,6 @@
 import { blacklistEvents, blacklistService } from '../app/blacklist'
+import { cacheService } from '../app/cache'
+import { cacheServiceEvents } from '../app/cache/service'
 import { emailEvents, emailService } from '../app/email'
 import { smsEvents, smsService } from '../app/sms'
 import { eventEmitter } from '../lib'
@@ -11,3 +13,7 @@ eventEmitter.on(
 )
 
 eventEmitter.on(smsEvents.sendVerification, smsService.sendVerification)
+eventEmitter.on(
+	cacheServiceEvents.invalidateUserCache,
+	cacheService.invalidateUserCache
+)

@@ -3,10 +3,10 @@ import { EventEmitter } from 'events'
 import bcrypt from 'bcryptjs'
 import { ALLOWED_ROLES, COOKIE_OPTIONS } from '../../../constants'
 import { BCrypt } from '../../../typings'
-import { User, UserRole } from '../../user/typings'
+import { User, UserDocument, UserRole } from '../../user/typings'
 import authService, { AuthService } from '../service'
 import { AuthenticationResult, SignUpDto } from '../typings'
-import { AppError } from '@yokita/common'
+import { AppError, GenericFunctionalRepository } from '@yokita/common'
 import { eventEmitter, redisClient } from '../../../lib'
 import { RedisClient } from 'redis'
 import {
@@ -14,6 +14,9 @@ import {
 	blacklistService,
 	BlacklistService
 } from '../../blacklist'
+import { CacheService } from '../../cache/service'
+import { cacheService } from '../../cache'
+import { userRepository } from '../../user'
 
 export const authControllerFactory = (deps: AuthControllerDependencies) => {
 	async function handleSignUp(
@@ -163,8 +166,39 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
-	function handleGetCurrentUser(req: Request, res: Response): Response | void {
-		return res.json(req.user)
+	async function handleGetCurrentUser(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			deps.cacheService.getCachedUser(
+				req.user?.id as string,
+				async (err, data) => {
+					if (err) throw err
+					if (!!data) {
+						return res.json(JSON.parse(data))
+					}
+
+					const freshUserFromDB = (await deps.userRepository.findById(
+						req.user?.id as string,
+						{ failIfNotFound: true }
+					)) as UserDocument
+
+					deps.cacheService.cacheUser(freshUserFromDB.toObject(), (err) => {
+						if (err) {
+							console.error(
+								`There was an error caching user with ID: ${req.user?.id}`
+							)
+						}
+
+						return res.json(freshUserFromDB.toObject())
+					})
+				}
+			)
+		} catch (error) {
+			return next(error)
+		}
 	}
 
 	function protectRoleSetting(
@@ -246,7 +280,9 @@ export default authControllerFactory({
 	bcrypt,
 	eventEmitter,
 	redisClient,
-	blacklistService
+	blacklistService,
+	cacheService,
+	userRepository
 })
 
 export type AuthControllerDependencies = {
@@ -255,6 +291,8 @@ export type AuthControllerDependencies = {
 	eventEmitter: EventEmitter
 	redisClient: RedisClient
 	blacklistService: BlacklistService
+	cacheService: CacheService
+	userRepository: GenericFunctionalRepository
 }
 
 export type AuthController = ReturnType<typeof authControllerFactory>

@@ -1,7 +1,9 @@
 import { MongooseInstanceHook } from '@yokita/common'
 import brcrypt from 'bcryptjs'
-import { emailService } from '../../email'
-import { smsService } from '../../sms'
+import { eventEmitter } from '../../../lib'
+import { cacheService } from '../../cache'
+import { emailEvents } from '../../email'
+import { smsEvents } from '../../sms'
 import { UserDocument } from '../typings'
 
 export const handlePreSave: MongooseInstanceHook<UserDocument> = async function (
@@ -19,7 +21,7 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
-		smsService.sendVerification(this, smsCode)
+		eventEmitter.emit(smsEvents.sendVerification, this, smsCode)
 	}
 
 	if (this.isModified('email')) {
@@ -29,7 +31,15 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
-		emailService.sendEmailVerification(this, emailCode)
+		eventEmitter.emit(emailEvents.sendVerification, this, emailCode)
+	}
+
+	if (this.isModified()) {
+		cacheService.cacheUser(this.toObject(), (err) => {
+			if (err) {
+				cacheService.invalidateUserCache(this.id)
+			}
+		})
 	}
 
 	next()
