@@ -111,6 +111,7 @@ export default blacklistServiceFactory({
 	userModel,
 	userRepository
 })
+
 export const blacklistEvents = {
 	addIPToBlacklist: 'blacklist',
 	addIPToWhitelist: 'whitelist'

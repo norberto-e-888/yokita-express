@@ -74,7 +74,7 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		type: Boolean,
 		default: false,
 		set: function (this: UserDocument, val: boolean) {
-			if (!this.phone) return false
+			if (!this.phone || !this.isPhoneVerified) return false
 			return val
 		}
 	},

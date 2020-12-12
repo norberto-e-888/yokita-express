@@ -11,8 +11,9 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 		this.password = await brcrypt.hash(this.password, 8)
 	}
 
-	if (this.isModified('phone')) {
+	if (this.isModified('phone') && this.phone) {
 		this.isPhoneVerified = false
+		this.is2FAEnabled = false
 		const smsCode = await this.setCode('phoneVerificationCode', {
 			save: false,
 			expiresIn: 1000 * 60 * 60 * 24 * 2

@@ -6,7 +6,6 @@ export type SignUpDto = {
 	password: string
 	phone?: UserPhone
 	dob?: Date
-	is2FAEnabled?: boolean
 }
 
 export type SignInDto = {
