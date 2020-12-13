@@ -6,7 +6,7 @@ export const cacheServiceFactory = (deps: ChacheServiceDependencies) => {
 	function cacheUser(user: UserPlainObject, cb?: Callback<number>): boolean {
 		try {
 			return deps.redisClient.HSET(
-				_buildKey(user.id),
+				_buildKey(user.id, 'user'),
 				'data',
 				JSON.stringify(user),
 				cb
@@ -17,15 +17,15 @@ export const cacheServiceFactory = (deps: ChacheServiceDependencies) => {
 	}
 
 	function getCachedUser(userId: string, cb?: Callback<string>): boolean {
-		return deps.redisClient.HGET(_buildKey(userId), 'data', cb)
+		return deps.redisClient.HGET(_buildKey(userId, 'user'), 'data', cb)
 	}
 
 	function invalidateUserCache(userId: string, cb?: Callback<number>): boolean {
-		return deps.redisClient.HDEL(_buildKey(userId), 'data', cb)
+		return deps.redisClient.HDEL(_buildKey(userId, 'user'), 'data', cb)
 	}
 
-	function _buildKey(userId: string): string {
-		return `user:${userId}`
+	function _buildKey(id: string, resource: 'user'): string {
+		return `${resource}:${id}`
 	}
 
 	return { cacheUser, invalidateUserCache, getCachedUser }

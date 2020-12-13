@@ -32,7 +32,6 @@ export type OmittedUserProperties =
 	| 'emailVerificationCode'
 	| 'phoneVerificationCode'
 	| 'passwordResetCode'
-	| 'isBlocked'
 	| 'twoFactorAuthToken'
 
 export type UserPlainObject = Omit<User, OmittedUserProperties>

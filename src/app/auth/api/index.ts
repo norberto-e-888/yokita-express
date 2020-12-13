@@ -24,7 +24,6 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	router.route('/sign-out').patch(deps.authController.handleSignOut)
 	router.route('/refresh').get(deps.authController.handleRefreshAccessToken)
 	router.route('/current-user').get(deps.authController.handleGetCurrentUser)
-
 	return router
 }
 
