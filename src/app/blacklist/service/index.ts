@@ -1,12 +1,13 @@
 import { RedisClient } from 'redis'
 import { EventEmitter } from 'events'
-import { eventEmitter, redisClient } from '../../../lib'
+import { eventEmitter } from '../../../lib'
 import { BlacklistEntryCreateDTO, BlacklistEntryModel } from '../typings'
 import { blacklistModel } from '..'
 import { UserDocument, UserModel } from '../../user/typings'
 import { ClientSession } from 'mongoose'
 import { userModel, userRepository } from '../../user'
 import { GenericFunctionalRepository } from '@yokita/common'
+import { redisClient } from '../../cache/service'
 
 export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 	function blacklistIp(ip: string) {

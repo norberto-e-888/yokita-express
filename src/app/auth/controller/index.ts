@@ -7,14 +7,14 @@ import { User, UserDocument, UserRole } from '../../user/typings'
 import authService, { AuthService } from '../service'
 import { AuthenticationResult, SignUpDto } from '../typings'
 import { AppError, GenericFunctionalRepository } from '@yokita/common'
-import { eventEmitter, redisClient } from '../../../lib'
+import { eventEmitter } from '../../../lib'
 import { RedisClient } from 'redis'
 import {
 	blacklistEvents,
 	blacklistService,
 	BlacklistService
 } from '../../blacklist'
-import { CacheService } from '../../cache/service'
+import { CacheService, redisClient } from '../../cache/service'
 import { cacheService } from '../../cache'
 import { userRepository } from '../../user'
 

@@ -1,8 +1,9 @@
-import { MailDataRequired, MailService } from '@sendgrid/mail'
+import sendgridClient, { MailDataRequired, MailService } from '@sendgrid/mail'
 import { VALID_EMAIL_REGEX } from '../../../constants'
 import env from '../../../env'
-import { sendgridClient } from '../../../lib'
 import { UserDocument } from '../../user'
+
+sendgridClient.setApiKey(env.sendgrid.apiKey)
 
 export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 	async function sendEmailVerification(

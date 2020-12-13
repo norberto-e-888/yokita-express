@@ -63,7 +63,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 				chars: 'aA#!'
 			})
 
-			const twoFactorAuthToken = _generate2FAToken({ ip: ipAddress, code })
+			const twoFactorAuthToken = _generate2FAToken({ code })
 			user.twoFactorAuthToken = twoFactorAuthToken
 			user.is2FALoginOnGoing = true
 			await user.save({ validateBeforeSave: false })
@@ -98,14 +98,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			env.auth.jwtSecret2FA,
 			{ ignoreExpiration: true }
 		) as TwoFactorAuthTokenPayload & { exp: number }
-
-		if (decodedToken.ip !== ipAddress) {
-			user.twoFactorAuthToken = undefined
-			user.refreshToken = undefined
-			user.is2FALoginOnGoing = false
-			await user.save({ validateBeforeSave: false })
-			throw new AppError('Invalid request', 403)
-		}
 
 		if (decodedToken.exp * 1000 < Date.now()) {
 			user.twoFactorAuthToken = undefined
@@ -169,11 +161,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		return _generateAccessToken({
-			user: {
-				id: userDocument.id,
-				is2FALoginOnGoing: userDocument.is2FALoginOnGoing
-			},
-			ip: ipAddress
+			id: userDocument.id
 		})
 	}
 
@@ -268,11 +256,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		user.refreshToken = await deps.bcrypt.hash(refreshToken, 8)
 		await user.save({ validateBeforeSave: false })
 		const authenticationToken = _generateAccessToken({
-			user: {
-				id: user.id,
-				is2FALoginOnGoing: user.is2FALoginOnGoing
-			},
-			ip
+			id: user.id
 		})
 
 		return {

@@ -1,5 +1,4 @@
 import { authenticate } from '@yokita/common'
-import { Request } from 'express'
 import { cacheService } from '../../app/cache'
 import { userModel } from '../../app/user'
 import { UserPlainObject, UserRole } from '../../app/user/typings'
@@ -15,29 +14,33 @@ export const baseAuthenticate = authenticate({
 	ignoreExpirationURLs: ['/auth/refresh']
 })
 
+export const unauthenticatedOnly = authenticate({
+	userModel,
+	getCachedUser: cacheService.getCachedUser,
+	jwtSecret: env.auth.jwtSecretAccessToken,
+	jwtIn: 'cookies',
+	jwtKeyName: 'jwt',
+	isProtected: false,
+	unauthenticatedOnly: true
+})()()
+
 export const adminAuthenticate = baseAuthenticate(
 	UserRole.Admin,
 	UserRole.SuperAdmin
 )
 
 export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)
-export const endUserAuthenticate = baseAuthenticate(UserRole.EndUser)(
-	isNotInProcessOf2FA
-)
+export const endUserAuthenticate = baseAuthenticate(UserRole.EndUser)
+export function isNotInProcessOf2FA(user: UserPlainObject) {
+	return !user.is2FALoginOnGoing
+}
 
-export function isNotInProcessOf2FA(user: UserPlainObject, req: Request) {
-	return !(
-		user.is2FALoginOnGoing &&
-		![
-			'/auth/2fa',
-			'/auth/current-user',
-			'/auth/refresh',
-			'/auth/sign-out'
-		].includes(req.originalUrl)
-	)
+export function isInProcessOf2FA(user: UserPlainObject) {
+	return user.is2FALoginOnGoing
 }
 
 export type BaseAuth = typeof baseAuthenticate
+export type UnauthOnly = typeof unauthenticatedOnly
 export type EndUserAuth = typeof endUserAuthenticate
 export type AdminAuth = typeof adminAuthenticate
 export type SuperAdminAuth = typeof superadminAuthenticate
