@@ -12,7 +12,7 @@ import authController, { AuthController } from '../controller'
 
 export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	const router = Router()
-	// *Only unauthenticated requests --start
+	// * Only unauthenticated requests --start
 	router
 		.route('/sign-up')
 		.post(deps.unauthenticatedOnly, deps.authController.handleSignUp)
@@ -28,8 +28,7 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	router
 		.route('/reset-password/:via/:info/:code')
 		.patch(deps.unauthenticatedOnly, deps.authController.handleResetPasword)
-	// *Only unauthenticated requests --end
-
+	// * Only unauthenticated requests --end
 	// ! Protected routes
 	router
 		.route('/2fa')

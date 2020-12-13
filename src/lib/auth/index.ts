@@ -10,18 +10,24 @@ export const baseAuthenticate = authenticate({
 	jwtSecret: env.auth.jwtSecretAccessToken,
 	jwtIn: 'cookies',
 	jwtKeyName: 'jwt',
-	isProtected: true,
 	ignoreExpirationURLs: ['/auth/refresh']
 })
 
 export const unauthenticatedOnly = authenticate({
-	userModel,
-	getCachedUser: cacheService.getCachedUser,
 	jwtSecret: env.auth.jwtSecretAccessToken,
 	jwtIn: 'cookies',
 	jwtKeyName: 'jwt',
 	isProtected: false,
 	unauthenticatedOnly: true
+})()()
+
+export const populateUser = authenticate({
+	userModel,
+	getCachedUser: cacheService.getCachedUser,
+	jwtSecret: env.auth.jwtSecretAccessToken,
+	jwtIn: 'cookies',
+	jwtKeyName: 'jwt',
+	isProtected: false
 })()()
 
 export const adminAuthenticate = baseAuthenticate(
