@@ -32,11 +32,11 @@ export const adminAuthenticate = baseAuthenticate(
 export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)
 export const endUserAuthenticate = baseAuthenticate(UserRole.EndUser)
 export function isNotInProcessOf2FA(user: UserPlainObject) {
-	return !user.is2FALoginOnGoing
+	return !user.is2FALoginOnGoing && !user.isBlocked
 }
 
 export function isInProcessOf2FA(user: UserPlainObject) {
-	return user.is2FALoginOnGoing
+	return user.is2FALoginOnGoing && !user.isBlocked
 }
 
 export type BaseAuth = typeof baseAuthenticate

@@ -5,19 +5,19 @@ export interface User extends CommonProperties {
 	name: UserName
 	email: string
 	phone?: UserPhone
-	password: string
 	role: UserRole
 	dob?: Date
-	refreshToken?: string
-	twoFactorAuthToken?: string
-	emailVerificationCode?: UserCode
-	phoneVerificationCode?: UserCode
-	passwordResetCode?: UserCode
 	isEmailVerified: boolean
 	isPhoneVerified: boolean
 	isBlocked: boolean
 	is2FAEnabled: boolean
 	is2FALoginOnGoing: boolean
+	password: string
+	refreshToken?: string
+	twoFactorAuthToken?: string
+	emailVerificationCode?: UserCode
+	phoneVerificationCode?: UserCode
+	passwordResetCode?: UserCode
 }
 
 export enum UserRole {
@@ -29,10 +29,10 @@ export enum UserRole {
 export type OmittedUserProperties =
 	| 'password'
 	| 'refreshToken'
+	| 'twoFactorAuthToken'
 	| 'emailVerificationCode'
 	| 'phoneVerificationCode'
 	| 'passwordResetCode'
-	| 'twoFactorAuthToken'
 
 export type UserPlainObject = Omit<User, OmittedUserProperties>
 export type UserName = {
