@@ -30,13 +30,18 @@ export const populateUser = authenticate({
 	isProtected: false
 })()()
 
+export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)
 export const adminAuthenticate = baseAuthenticate(
 	UserRole.Admin,
 	UserRole.SuperAdmin
 )
 
-export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)
-export const endUserAuthenticate = baseAuthenticate(UserRole.EndUser)
+export const endUserAuthenticate = baseAuthenticate(
+	UserRole.EndUser,
+	UserRole.Admin,
+	UserRole.SuperAdmin
+)
+
 export function isNotInProcessOf2FA(user: UserPlainObject) {
 	return !user.is2FALoginOnGoing && !user.isBlocked
 }

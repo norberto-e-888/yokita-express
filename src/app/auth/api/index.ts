@@ -33,14 +33,14 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	router
 		.route('/2fa')
 		.post(
-			deps.endUserAuthenticate(isInProcessOf2FA),
+			deps.endUserAuthenticate(isInProcessOf2FA, isNotBlocked),
 			deps.authController.handle2FA
 		)
 
 	router
 		.route('/verify/:info/:code')
 		.patch(
-			deps.endUserAuthenticate(isNotInProcessOf2FA),
+			deps.endUserAuthenticate(isNotInProcessOf2FA, isNotBlocked),
 			deps.authController.handleVerifyUserInfo
 		)
 
