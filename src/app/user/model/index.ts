@@ -96,7 +96,6 @@ const userSchema = new Schema(userSchemaDefinition, {
 			emailVerificationCode: undefined,
 			phoneVerificationCode: undefined,
 			passwordResetCode: undefined,
-			isBlocked: undefined,
 			twoFactorAuthToken: undefined,
 			_id: undefined,
 			__v: undefined

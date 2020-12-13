@@ -3,6 +3,7 @@ import {
 	EndUserAuth,
 	endUserAuthenticate,
 	isInProcessOf2FA,
+	isNotBlocked,
 	isNotInProcessOf2FA,
 	unauthenticatedOnly,
 	UnauthOnly
@@ -51,13 +52,16 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	router
 		.route('/refresh')
 		.get(
-			deps.endUserAuthenticate(),
+			deps.endUserAuthenticate(isNotBlocked),
 			deps.authController.handleRefreshAccessToken
 		)
 
 	router
 		.route('/current-user')
-		.get(deps.endUserAuthenticate(), deps.authController.handleGetCurrentUser)
+		.get(
+			deps.endUserAuthenticate(isNotBlocked),
+			deps.authController.handleGetCurrentUser
+		)
 
 	return router
 }

@@ -39,6 +39,10 @@ export function isInProcessOf2FA(user: UserPlainObject) {
 	return user.is2FALoginOnGoing && !user.isBlocked
 }
 
+export function isNotBlocked(user: UserPlainObject) {
+	return !user.isBlocked
+}
+
 export type BaseAuth = typeof baseAuthenticate
 export type UnauthOnly = typeof unauthenticatedOnly
 export type EndUserAuth = typeof endUserAuthenticate
