@@ -10,7 +10,7 @@ import { AppError, GenericFunctionalRepository } from '@yokita/common'
 import { eventEmitter } from '../../../lib'
 import { RedisClient } from 'redis'
 import {
-	blacklistEvents,
+	BLACKLIST_EVENTS,
 	blacklistService,
 	BlacklistService
 } from '../../blacklist'
@@ -71,6 +71,23 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		try {
 			const user = await deps.authService.toggle2FA(req.user?.id as string)
 			return res.status(200).json(user)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
+	async function handleResend2FACode(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			await deps.authService.resend2FACode(req.user?.id as string)
+			return res
+				.status(200)
+				.json(
+					`Check ${req.user?.phone?.prefix}-${req.user?.phone?.value} for your 2FA code`
+				)
 		} catch (error) {
 			return next(error)
 		}
@@ -234,7 +251,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 				)
 
 			if (isUnknownOrForbiddenRoleBeingSet) {
-				deps.eventEmitter.emit(blacklistEvents.addIPToBlacklist, req.ip)
+				deps.eventEmitter.emit(BLACKLIST_EVENTS.addIPToBlacklist, req.ip)
 				throw new AppError('Perpetually blocked', 403)
 			}
 
@@ -289,6 +306,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleResetPasword,
 		handleRecoverAccount,
 		handle2FA,
+		handleResend2FACode,
 		handleToggle2FA,
 		protectRoleSetting,
 		checkBlacklist

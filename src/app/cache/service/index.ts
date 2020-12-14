@@ -36,7 +36,7 @@ export const cacheServiceFactory = (deps: ChacheServiceDependencies) => {
 }
 
 export default cacheServiceFactory({ redisClient })
-export const cacheServiceEvents = {
+export const CACHE_EVENTS = {
 	invalidateUserCache: 'invalidateUserCache'
 }
 

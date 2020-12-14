@@ -51,6 +51,13 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		)
 
 	router
+		.route('/resend-2fa-code')
+		.get(
+			deps.endUserAuthenticate(isInProcessOf2FA, isPhoneVerified),
+			deps.authController.handleResend2FACode
+		)
+
+	router
 		.route('/verify/:info/:code')
 		.patch(
 			deps.endUserAuthenticate(

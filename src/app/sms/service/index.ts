@@ -48,8 +48,9 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 }
 
 export default smsServiceFactory({ twilioClient })
-export const smsEvents = {
-	sendVerification: 'sendPhoneVerification'
+export const SMS_EVENTS = {
+	sendVerification: 'sendPhoneVerification',
+	send2FACode: 'send2FACode'
 }
 
 export type SmsService = ReturnType<typeof smsServiceFactory>

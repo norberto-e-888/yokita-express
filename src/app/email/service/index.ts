@@ -50,7 +50,7 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 }
 
 export default emailServiceFactory({ sendgridClient })
-export const emailEvents = {
+export const EMAIL_EVENTS = {
 	sendVerification: 'sendEmailVerification'
 }
 

@@ -56,7 +56,11 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	},
 	isPhoneVerified: {
 		type: Boolean,
-		default: false
+		default: false,
+		set: function (this: UserDocument, val: boolean) {
+			if (!this.phone) return false
+			return val
+		}
 	},
 	emailVerificationCode: {
 		type: userCodeSchema
@@ -84,7 +88,13 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	},
 	is2FALoginOnGoing: {
 		type: Boolean,
-		default: false
+		default: false,
+		set: function (this: UserDocument, val: boolean) {
+			if (!this.phone || !this.isPhoneVerified || !this.is2FAEnabled)
+				return false
+
+			return val
+		}
 	},
 	refreshToken: String
 }

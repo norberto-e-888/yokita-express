@@ -1,19 +1,20 @@
-import { blacklistEvents, blacklistService } from '../app/blacklist'
+import { BLACKLIST_EVENTS, blacklistService } from '../app/blacklist'
 import { cacheService } from '../app/cache'
-import { cacheServiceEvents } from '../app/cache/service'
-import { emailEvents, emailService } from '../app/email'
-import { smsEvents, smsService } from '../app/sms'
+import { CACHE_EVENTS } from '../app/cache/service'
+import { EMAIL_EVENTS, emailService } from '../app/email'
+import { SMS_EVENTS, smsService } from '../app/sms'
 import { eventEmitter } from '../lib'
 
-eventEmitter.on(blacklistEvents.addIPToBlacklist, blacklistService.blacklistIp)
-eventEmitter.on(blacklistEvents.addIPToWhitelist, blacklistService.whitelistIp)
+eventEmitter.on(BLACKLIST_EVENTS.addIPToBlacklist, blacklistService.blacklistIp)
+eventEmitter.on(BLACKLIST_EVENTS.addIPToWhitelist, blacklistService.whitelistIp)
 eventEmitter.on(
-	emailEvents.sendVerification,
+	EMAIL_EVENTS.sendVerification,
 	emailService.sendEmailVerification
 )
 
-eventEmitter.on(smsEvents.sendVerification, smsService.sendVerification)
+eventEmitter.on(SMS_EVENTS.sendVerification, smsService.sendVerification)
+eventEmitter.on(SMS_EVENTS.send2FACode, smsService.send2FACode)
 eventEmitter.on(
-	cacheServiceEvents.invalidateUserCache,
+	CACHE_EVENTS.invalidateUserCache,
 	cacheService.invalidateUserCache
 )

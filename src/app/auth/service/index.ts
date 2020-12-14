@@ -26,9 +26,9 @@ import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
 import { BlacklistEntryModel } from '../../blacklist/typings'
 import { eventEmitter } from '../../../lib'
-import { SmsService, smsService } from '../../sms'
-import { EmailService, emailService } from '../../email'
-import { cacheServiceEvents } from '../../cache/service'
+import { SMS_EVENTS } from '../../sms'
+import { EMAIL_EVENTS } from '../../email'
+import { CACHE_EVENTS } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(
@@ -69,13 +69,30 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 			user.is2FALoginOnGoing = true
 			await user.save({ validateBeforeSave: false })
-			await deps.smsService.send2FACode(user, code)
+			deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
 		} else {
 			user.is2FALoginOnGoing = false
 			await user.save({ validateBeforeSave: false })
 		}
 
 		return await _generateAuthenticationResult(user, ipAddress)
+	}
+
+	async function resend2FACode(userId: string): Promise<void> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		if (!user.is2FALoginOnGoing) {
+			throw new AppError('You are not in process of login', 400)
+		}
+
+		const code = await user.setCode('twoFactorAuthCode', {
+			save: true,
+			expiresIn: 1000 * 60 * 60 * 6
+		})
+
+		deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
 	}
 
 	async function twoFactorAuthentication(
@@ -87,11 +104,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			failIfNotFound: true
 		})) as UserDocument
 
-		if (
-			!user.is2FAEnabled ||
-			!user.twoFactorAuthCode ||
-			!user.is2FALoginOnGoing
-		) {
+		if (!user.is2FALoginOnGoing) {
 			throw new AppError('You are not in process of login', 400)
 		}
 
@@ -128,7 +141,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			is2FALoginOnGoing: false
 		})
 
-		deps.eventEmitter.emit(cacheServiceEvents.invalidateUserCache, userId)
+		deps.eventEmitter.emit(CACHE_EVENTS.invalidateUserCache, userId)
 	}
 
 	async function refreshAccessToken(
@@ -234,9 +247,9 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})
 
 		if (via === 'email') {
-			await deps.emailService.sendPasswordResetCode(user, code)
+			deps.eventEmitter.emit(EMAIL_EVENTS.sendVerification, user, code)
 		} else {
-			await deps.smsService.sendPasswordResetCode(user, code)
+			deps.eventEmitter.emit(SMS_EVENTS.sendVerification, user, code)
 		}
 	}
 
@@ -309,7 +322,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		verifyUserInfo,
 		twoFactorAuthentication,
 		recoverAccount,
-		toggle2FA
+		toggle2FA,
+		resend2FACode
 	}
 }
 
@@ -320,8 +334,6 @@ export default authServiceFactory({
 	bcrypt,
 	blacklistModel,
 	eventEmitter,
-	smsService,
-	emailService,
 	generateCode
 })
 
@@ -333,7 +345,6 @@ export interface AuthServiceDependencies {
 	bcrypt: BCrypt
 	blacklistModel: BlacklistEntryModel
 	eventEmitter: EventEmitter
-	smsService: SmsService
-	emailService: EmailService
+
 	generateCode: GenerateCode
 }
