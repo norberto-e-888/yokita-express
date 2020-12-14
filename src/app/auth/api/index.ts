@@ -5,6 +5,8 @@ import {
 	isInProcessOf2FA,
 	isNotBlocked,
 	isNotInProcessOf2FA,
+	isPhoneVerified,
+	isInfoVerificationRequestNotRedundant,
 	unauthenticatedOnly,
 	UnauthOnly
 } from '../../../lib'
@@ -38,9 +40,24 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		)
 
 	router
+		.route('/toggle-2fa')
+		.patch(
+			deps.endUserAuthenticate(
+				isNotInProcessOf2FA,
+				isNotBlocked,
+				isPhoneVerified
+			),
+			deps.authController.handleToggle2FA
+		)
+
+	router
 		.route('/verify/:info/:code')
 		.patch(
-			deps.endUserAuthenticate(isNotInProcessOf2FA, isNotBlocked),
+			deps.endUserAuthenticate(
+				isNotInProcessOf2FA,
+				isNotBlocked,
+				isInfoVerificationRequestNotRedundant
+			),
 			deps.authController.handleVerifyUserInfo
 		)
 

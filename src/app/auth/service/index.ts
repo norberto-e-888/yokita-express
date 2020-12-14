@@ -9,14 +9,18 @@ import bcrypt from 'bcryptjs'
 import env from '../../../env'
 import { BCrypt, GenerateCode, JWT } from '../../../typings'
 import { userRepository } from '../../user'
-import { User, UserDocument, UserModel } from '../../user/typings'
+import {
+	User,
+	UserDocument,
+	UserModel,
+	UserPlainObject
+} from '../../user/typings'
 import {
 	AccessTokenPayload,
 	AuthenticationResult,
 	RefreshTokenPayload,
 	SignInDto,
-	SignUpDto,
-	TwoFactorAuthTokenPayload
+	SignUpDto
 } from '../typings'
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
@@ -58,13 +62,11 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		await user.isPasswordValid(credentials.password, { throwIfInvalid: true })
 		if (user.is2FAEnabled && user.phone) {
-			const code = deps.generateCode(6, {
-				posibilidadesIguales: true,
-				chars: 'aA#!'
+			const code = await user.setCode('twoFactorAuthCode', {
+				save: false,
+				expiresIn: 1000 * 60 * 60 * 6
 			})
 
-			const twoFactorAuthToken = _generate2FAToken({ code })
-			user.twoFactorAuthToken = twoFactorAuthToken
 			user.is2FALoginOnGoing = true
 			await user.save({ validateBeforeSave: false })
 			await deps.smsService.send2FACode(user, code)
@@ -87,34 +89,34 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		if (
 			!user.is2FAEnabled ||
-			!user.twoFactorAuthToken ||
+			!user.twoFactorAuthCode ||
 			!user.is2FALoginOnGoing
 		) {
 			throw new AppError('You are not in process of login', 400)
 		}
 
-		const decodedToken = deps.jwt.verify(
-			user.twoFactorAuthToken,
-			env.auth.jwtSecret2FA,
-			{ ignoreExpiration: true }
-		) as TwoFactorAuthTokenPayload & { exp: number }
+		const { isValid, isExpired } = await user.isCodeValid(
+			'twoFactorAuthCode',
+			triedCode,
+			{
+				ignoreExpiration: true
+			}
+		)
 
-		if (decodedToken.exp * 1000 < Date.now()) {
-			user.twoFactorAuthToken = undefined
-			user.refreshToken = undefined
+		if (isExpired) {
+			user.twoFactorAuthCode = undefined
 			user.is2FALoginOnGoing = false
+			user.refreshToken = undefined
 			await user.save({ validateBeforeSave: false })
 			throw new AppError('Expired 2FA token', 400)
 		}
 
-		if (triedCode !== decodedToken.code) {
+		if (!isValid) {
 			throw new AppError('Wrong 2FA code', 400)
 		}
 
-		user.twoFactorAuthToken = undefined
+		user.twoFactorAuthCode = undefined
 		user.is2FALoginOnGoing = false
-		user.isPhoneVerified = true
-		user.phoneVerificationCode = undefined
 		await user.save({ validateBeforeSave: false })
 		return await _generateAuthenticationResult(user, ipAddress)
 	}
@@ -122,7 +124,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signOut(userId: string): Promise<void> {
 		await deps.userModel.findByIdAndUpdate(userId, {
 			refreshToken: undefined,
-			twoFactorAuthToken: undefined,
+			twoFactorAuthCode: undefined,
 			is2FALoginOnGoing: false
 		})
 
@@ -163,6 +165,26 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		return _generateAccessToken({
 			id: userDocument.id
 		})
+	}
+
+	async function toggle2FA(userId: string): Promise<UserPlainObject> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		if (user.is2FAEnabled) {
+			user.is2FAEnabled = false
+			await user.save({ validateBeforeSave: false })
+			return user.toObject()
+		}
+
+		if (!user.isPhoneVerified) {
+			throw new AppError('Your phone must be verified to enable 2FA', 403)
+		}
+
+		user.is2FAEnabled = true
+		await user.save({ validateBeforeSave: false })
+		return user.toObject()
 	}
 
 	async function verifyUserInfo(
@@ -253,7 +275,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		const user = userDocument
 		const refreshTokenPayload: RefreshTokenPayload = { ip }
 		const refreshToken = _generateRefreshToken(refreshTokenPayload)
-		user.refreshToken = await deps.bcrypt.hash(refreshToken, 8)
+		user.refreshToken = await deps.bcrypt.hash(refreshToken, 6)
 		await user.save({ validateBeforeSave: false })
 		const authenticationToken = _generateAccessToken({
 			id: user.id
@@ -278,12 +300,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})
 	}
 
-	function _generate2FAToken(payload: TwoFactorAuthTokenPayload): string {
-		return deps.jwt.sign(payload, env.auth.jwtSecret2FA, {
-			expiresIn: 60 * 60 * 6
-		})
-	}
-
 	return {
 		signUp,
 		signIn,
@@ -292,7 +308,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		resetPassword,
 		verifyUserInfo,
 		twoFactorAuthentication,
-		recoverAccount
+		recoverAccount,
+		toggle2FA
 	}
 }
 

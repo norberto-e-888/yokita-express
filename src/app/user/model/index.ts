@@ -3,7 +3,13 @@ import { MongooseSchemaDefinition } from '@yokita/common'
 import { userNameSchema, userCodeSchema, userPhoneSchema } from './sub-schemas'
 import { handlePreSave } from './hooks'
 import { isEmailInUse } from './statics'
-import { setCode, isPasswordValid, verifyInfo, resetPassword } from './methods'
+import {
+	setCode,
+	isPasswordValid,
+	verifyInfo,
+	resetPassword,
+	isCodeValid
+} from './methods'
 import { User, UserDocument, UserModel, UserRole } from '../typings'
 import { VALID_EMAIL_REGEX } from '../../../constants'
 
@@ -61,10 +67,8 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	passwordResetCode: {
 		type: userCodeSchema
 	},
-	refreshToken: String,
-	twoFactorAuthToken: {
-		type: String,
-		required: false
+	twoFactorAuthCode: {
+		type: userCodeSchema
 	},
 	isBlocked: {
 		type: Boolean,
@@ -81,7 +85,8 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	is2FALoginOnGoing: {
 		type: Boolean,
 		default: false
-	}
+	},
+	refreshToken: String
 }
 
 const userSchema = new Schema(userSchemaDefinition, {
@@ -96,7 +101,7 @@ const userSchema = new Schema(userSchemaDefinition, {
 			emailVerificationCode: undefined,
 			phoneVerificationCode: undefined,
 			passwordResetCode: undefined,
-			twoFactorAuthToken: undefined,
+			twoFactorAuthCode: undefined,
 			_id: undefined,
 			__v: undefined
 		})
@@ -116,6 +121,7 @@ userSchema.pre('save', handlePreSave)
 
 userSchema.statics.isEmailInUse = isEmailInUse
 userSchema.methods.setCode = setCode
+userSchema.methods.isCodeValid = isCodeValid
 userSchema.methods.isPasswordValid = isPasswordValid
 userSchema.methods.verifyInfo = verifyInfo
 userSchema.methods.resetPassword = resetPassword

@@ -4,7 +4,8 @@ import {
 	UserMethodIsPasswordValid,
 	UserMethodSetCode,
 	UserMethodResetPassword,
-	UserMethodVerifyInfo
+	UserMethodVerifyInfo,
+	UserMethodIsCodeValid
 } from '../typings'
 
 export const setCode: UserMethodSetCode = async function (
@@ -23,6 +24,30 @@ export const setCode: UserMethodSetCode = async function (
 	}
 
 	return code
+}
+
+export const isCodeValid: UserMethodIsCodeValid = async function (
+	code,
+	triedCode,
+	{ ignoreExpiration = false }: { ignoreExpiration?: boolean } = {
+		ignoreExpiration: false
+	}
+) {
+	if (!this[code]) {
+		throw new AppError('Invalid user', 500)
+	}
+
+	if (
+		!ignoreExpiration &&
+		(this[code]?.expiration?.getTime() as number) < Date.now()
+	) {
+		throw new AppError('Code expired', 400)
+	}
+
+	return {
+		isValid: await brcrypt.compare(triedCode, this[code]?.value as string),
+		isExpired: (this[code]?.expiration?.getTime() as number) < Date.now()
+	}
 }
 
 export const isPasswordValid: UserMethodIsPasswordValid = async function (

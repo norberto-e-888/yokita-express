@@ -63,6 +63,19 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleToggle2FA(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const user = await deps.authService.toggle2FA(req.user?.id as string)
+			return res.status(200).json(user)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleSignOut(
 		req: Request,
 		res: Response,
@@ -276,6 +289,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleResetPasword,
 		handleRecoverAccount,
 		handle2FA,
+		handleToggle2FA,
 		protectRoleSetting,
 		checkBlacklist
 	}

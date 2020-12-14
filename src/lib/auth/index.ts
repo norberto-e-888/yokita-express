@@ -1,4 +1,5 @@
 import { authenticate } from '@yokita/common'
+import { ExtraCondition } from '@yokita/common/build/middleware/authenticate'
 import { cacheService } from '../../app/cache'
 import { userModel } from '../../app/user'
 import { UserPlainObject, UserRole } from '../../app/user/typings'
@@ -42,16 +43,35 @@ export const endUserAuthenticate = baseAuthenticate(
 	UserRole.SuperAdmin
 )
 
-export function isNotInProcessOf2FA(user: UserPlainObject) {
+export function isNotInProcessOf2FA(user: UserPlainObject): boolean {
 	return !user.is2FALoginOnGoing
 }
 
-export function isInProcessOf2FA(user: UserPlainObject) {
+export function isInProcessOf2FA(user: UserPlainObject): boolean {
 	return user.is2FALoginOnGoing
 }
 
-export function isNotBlocked(user: UserPlainObject) {
+export function isNotBlocked(user: UserPlainObject): boolean {
 	return !user.isBlocked
+}
+
+export function isPhoneVerified(user: UserPlainObject): boolean {
+	return user.isPhoneVerified
+}
+
+export const isInfoVerificationRequestNotRedundant: ExtraCondition = (
+	user: UserPlainObject,
+	req
+) => {
+	if (req.params.info === 'phone' && user.isPhoneVerified) {
+		return false
+	}
+
+	if (req.params.info === 'email' && user.isEmailVerified) {
+		return false
+	}
+
+	return true
 }
 
 export type BaseAuth = typeof baseAuthenticate

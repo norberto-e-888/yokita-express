@@ -14,7 +14,7 @@ export interface User extends CommonProperties {
 	is2FALoginOnGoing: boolean
 	password: string
 	refreshToken?: string
-	twoFactorAuthToken?: string
+	twoFactorAuthCode?: UserCode
 	emailVerificationCode?: UserCode
 	phoneVerificationCode?: UserCode
 	passwordResetCode?: UserCode
@@ -29,7 +29,7 @@ export enum UserRole {
 export type OmittedUserProperties =
 	| 'password'
 	| 'refreshToken'
-	| 'twoFactorAuthToken'
+	| 'twoFactorAuthCode'
 	| 'emailVerificationCode'
 	| 'phoneVerificationCode'
 	| 'passwordResetCode'
@@ -56,6 +56,7 @@ export interface UserDocument extends User, Document {
 	id: string
 	__v: number
 	setCode: UserMethodSetCode
+	isCodeValid: UserMethodIsCodeValid
 	isPasswordValid: UserMethodIsPasswordValid
 	verifyInfo: UserMethodVerifyInfo
 	resetPassword: UserMethodResetPassword
@@ -79,6 +80,7 @@ export type SetCodeProperties =
 	| 'emailVerificationCode'
 	| 'phoneVerificationCode'
 	| 'passwordResetCode'
+	| 'twoFactorAuthCode'
 
 export type UserStaticIsEmailInUser = (
 	this: UserModel,
@@ -125,3 +127,12 @@ export type CreateUserDto = {
 	role?: UserRole
 	dob?: Date
 }
+
+export type UserMethodIsCodeValid = (
+	this: UserDocument,
+	code: SetCodeProperties,
+	triedCode: string,
+	opts?: IsCodeValidOptions
+) => Promise<{ isValid: boolean; isExpired: boolean }>
+
+export type IsCodeValidOptions = { ignoreExpiration?: boolean }
