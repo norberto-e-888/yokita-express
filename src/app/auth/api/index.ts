@@ -6,7 +6,8 @@ import {
 	isNotBlocked,
 	isNotInProcessOf2FA,
 	isPhoneVerified,
-	isInfoVerificationRequestNotRedundant,
+	isVerificationRequestNotRedundant,
+	isVerificationResendRequestNotRedundantOrInvalid,
 	unauthenticatedOnly,
 	UnauthOnly
 } from '../../../lib'
@@ -53,8 +54,19 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 	router
 		.route('/resend-2fa-code')
 		.get(
-			deps.endUserAuthenticate(isInProcessOf2FA, isPhoneVerified),
+			deps.endUserAuthenticate(isInProcessOf2FA, isNotBlocked, isPhoneVerified),
 			deps.authController.handleResend2FACode
+		)
+
+	router
+		.route('/resend-verification/:type')
+		.get(
+			deps.endUserAuthenticate(
+				isNotInProcessOf2FA,
+				isNotBlocked,
+				isVerificationResendRequestNotRedundantOrInvalid
+			),
+			deps.authController.handleResendVerificationCode
 		)
 
 	router
@@ -63,7 +75,7 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 			deps.endUserAuthenticate(
 				isNotInProcessOf2FA,
 				isNotBlocked,
-				isInfoVerificationRequestNotRedundant
+				isVerificationRequestNotRedundant
 			),
 			deps.authController.handleVerifyUserInfo
 		)

@@ -1,11 +1,15 @@
 import { AppError, generateCode } from '@yokita/common'
 import brcrypt from 'bcryptjs'
+import { eventEmitter } from '../../../lib'
+import { EMAIL_EVENTS } from '../../email'
+import { SMS_EVENTS } from '../../sms'
 import {
 	UserMethodIsPasswordValid,
 	UserMethodSetCode,
 	UserMethodResetPassword,
 	UserMethodVerifyInfo,
-	UserMethodIsCodeValid
+	UserMethodIsCodeValid,
+	UserMethodSendVerification
 } from '../typings'
 
 export const setCode: UserMethodSetCode = async function (
@@ -114,5 +118,41 @@ export const resetPassword: UserMethodResetPassword = async function (
 		return this
 	} else {
 		throw new AppError('Invalid code', 403)
+	}
+}
+
+export const sendVerification: UserMethodSendVerification = async function (
+	type,
+	save = false
+) {
+	if (type === 'email') {
+		if (this.isEmailVerified) {
+			throw new AppError('Your email is already verified', 400)
+		}
+
+		this.isEmailVerified = false
+		const emailCode = await this.setCode('emailVerificationCode', {
+			save,
+			expiresIn: 1000 * 60 * 60 * 24 * 2
+		})
+
+		eventEmitter.emit(EMAIL_EVENTS.sendVerification, this, emailCode)
+	} else {
+		if (!this.phone) {
+			throw new AppError('You do not have a phone number to verify', 400)
+		}
+
+		if (this.isPhoneVerified) {
+			throw new AppError('Your phone is already verified', 400)
+		}
+
+		this.isPhoneVerified = false
+		this.is2FAEnabled = false
+		const smsCode = await this.setCode('phoneVerificationCode', {
+			save,
+			expiresIn: 1000 * 60 * 60 * 24 * 2
+		})
+
+		eventEmitter.emit(SMS_EVENTS.sendVerification, this, smsCode)
 	}
 }

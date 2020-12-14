@@ -8,7 +8,8 @@ import {
 	isPasswordValid,
 	verifyInfo,
 	resetPassword,
-	isCodeValid
+	isCodeValid,
+	sendVerification
 } from './methods'
 import { User, UserDocument, UserModel, UserRole } from '../typings'
 import { VALID_EMAIL_REGEX } from '../../../constants'
@@ -134,6 +135,7 @@ userSchema.methods.setCode = setCode
 userSchema.methods.isCodeValid = isCodeValid
 userSchema.methods.isPasswordValid = isPasswordValid
 userSchema.methods.verifyInfo = verifyInfo
+userSchema.methods.sendVerification = sendVerification
 userSchema.methods.resetPassword = resetPassword
 
 export default model<UserDocument, UserModel>('User', userSchema)

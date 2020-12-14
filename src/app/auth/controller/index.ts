@@ -93,6 +93,26 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleResendVerificationCode(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const type = req.params.type as 'email' | 'phone'
+			await deps.authService.resendVerification(req.user?.id as string, type)
+			return res
+				.status(200)
+				.json(
+					type === 'email'
+						? `Check ${req.user?.email} for your verification code`
+						: `Check ${req.user?.phone?.prefix}-${req.user?.phone?.value} for your verification code`
+				)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleSignOut(
 		req: Request,
 		res: Response,
@@ -307,6 +327,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleRecoverAccount,
 		handle2FA,
 		handleResend2FACode,
+		handleResendVerificationCode,
 		handleToggle2FA,
 		protectRoleSetting,
 		checkBlacklist

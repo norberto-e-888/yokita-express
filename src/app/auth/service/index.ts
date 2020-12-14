@@ -95,6 +95,17 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
 	}
 
+	async function resendVerification(
+		userId: string,
+		type: 'email' | 'phone'
+	): Promise<void> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		await user.sendVerification(type, true)
+	}
+
 	async function twoFactorAuthentication(
 		userId: string,
 		ipAddress: string,
@@ -323,7 +334,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		twoFactorAuthentication,
 		recoverAccount,
 		toggle2FA,
-		resend2FACode
+		resend2FACode,
+		resendVerification
 	}
 }
 

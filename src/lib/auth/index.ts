@@ -59,7 +59,7 @@ export function isPhoneVerified(user: UserPlainObject): boolean {
 	return user.isPhoneVerified
 }
 
-export const isInfoVerificationRequestNotRedundant: ExtraCondition = (
+export const isVerificationRequestNotRedundant: ExtraCondition = (
 	user: UserPlainObject,
 	req
 ) => {
@@ -71,6 +71,16 @@ export const isInfoVerificationRequestNotRedundant: ExtraCondition = (
 		return false
 	}
 
+	return true
+}
+
+export const isVerificationResendRequestNotRedundantOrInvalid: ExtraCondition = (
+	user: UserPlainObject,
+	req
+) => {
+	const type = req.params.type as 'email' | 'phone'
+	if (type === 'email' && user.isEmailVerified) return false
+	if (type === 'phone' && (user.isPhoneVerified || !user.phone)) return false
 	return true
 }
 

@@ -59,6 +59,7 @@ export interface UserDocument extends User, Document {
 	isCodeValid: UserMethodIsCodeValid
 	isPasswordValid: UserMethodIsPasswordValid
 	verifyInfo: UserMethodVerifyInfo
+	sendVerification: UserMethodSendVerification
 	resetPassword: UserMethodResetPassword
 }
 
@@ -136,3 +137,9 @@ export type UserMethodIsCodeValid = (
 ) => Promise<{ isValid: boolean; isExpired: boolean }>
 
 export type IsCodeValidOptions = { ignoreExpiration?: boolean }
+
+export type UserMethodSendVerification = (
+	this: UserDocument,
+	type: 'email' | 'phone',
+	save?: boolean
+) => Promise<void>
