@@ -43,11 +43,11 @@ export const endUserAuthenticate = baseAuthenticate(
 )
 
 export function isNotInProcessOf2FA(user: UserPlainObject) {
-	return !user.is2FALoginOnGoing && !user.isBlocked
+	return !user.is2FALoginOnGoing
 }
 
 export function isInProcessOf2FA(user: UserPlainObject) {
-	return user.is2FALoginOnGoing && !user.isBlocked
+	return user.is2FALoginOnGoing
 }
 
 export function isNotBlocked(user: UserPlainObject) {
