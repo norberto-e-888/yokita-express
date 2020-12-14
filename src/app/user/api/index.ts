@@ -4,34 +4,63 @@ import {
 	GenericCrudApi,
 	genericCrudApiFactory
 } from '@yokita/common'
-import userController from '../controller'
-import { UserRole } from '../typings'
+import userController, { UserController } from '../controller'
+import { UserPlainObject, UserRole } from '../typings'
 import { cacheService } from '../../cache'
-import { userModel } from '..'
+import userModel from '../model'
 import env from '../../../env'
+import { EndUserAuth } from '../../../lib'
 
-export const superadminAuthenticate = authenticate({
+const baseAuthenticate = authenticate({
 	userModel,
 	getCachedUser: cacheService.getCachedUser,
 	jwtSecret: env.auth.jwtSecretAccessToken,
 	jwtIn: 'cookies',
 	jwtKeyName: 'jwt',
-	isProtected: true,
 	ignoreExpirationURLs: ['/auth/refresh']
-})(UserRole.SuperAdmin)()
+})
+
+const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)()
+const endUserAuthenticate = baseAuthenticate(
+	UserRole.EndUser,
+	UserRole.Admin,
+	UserRole.SuperAdmin
+)
 
 export const userApiFactory = (deps: UserApiFactoryDependencies) => {
 	const router = Router()
+	router
+		.route('/update-profile')
+		.patch(
+			deps.endUserAuthenticate(isNotInProcessOf2FA, isNotBlocked),
+			deps.userController.handleUpdateProfile
+		)
+
 	router.use(deps.superadminAuthenticate, deps.userCrudApi)
 	return router
 }
 
 const userCrudApi = genericCrudApiFactory({ controller: userController })
 
-export default userApiFactory({ superadminAuthenticate, userCrudApi })
+export default userApiFactory({
+	superadminAuthenticate,
+	endUserAuthenticate,
+	userController,
+	userCrudApi
+})
+
 export type UserApiFactoryDependencies = {
 	superadminAuthenticate: SuperAdminAuth
+	endUserAuthenticate: EndUserAuth
+	userController: UserController
 	userCrudApi: GenericCrudApi
 }
 
 export type SuperAdminAuth = typeof superadminAuthenticate
+function isNotInProcessOf2FA(user: UserPlainObject): boolean {
+	return !user.is2FALoginOnGoing
+}
+
+function isNotBlocked(user: UserPlainObject): boolean {
+	return !user.isBlocked
+}
