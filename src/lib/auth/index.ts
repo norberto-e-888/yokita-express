@@ -52,14 +52,14 @@ export const isNotInProcessOf2FA: AppExtraCondition = (
 	}
 }
 
-export const isInProcessOf2FA: AppExtraCondition = (user: UserPlainObject) => {
+export const isInProcessOf2FA: AppExtraCondition = (user) => {
 	return {
 		doesContidionPass: user.is2FALoginOnGoing,
 		message: 'You must be in process of login in with 2FA.'
 	}
 }
 
-export const isNotBlocked: AppExtraCondition = (user: UserPlainObject) => {
+export const isNotBlocked: AppExtraCondition = (user) => {
 	return { doesContidionPass: !user.isBlocked, message: 'You are blocked.' }
 }
 
