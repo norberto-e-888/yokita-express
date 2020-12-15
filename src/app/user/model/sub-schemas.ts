@@ -2,7 +2,7 @@ import { MongooseSchemaDefinition } from '@yokita/common'
 import { Schema } from 'mongoose'
 import { UserCode, UserName, UserPhone } from '../typings'
 
-const userNameSchemaDefinition: MongooseSchemaDefinition<UserName> = {
+export const userNameSchemaDefinition: MongooseSchemaDefinition<UserName> = {
 	first: {
 		type: String,
 		required: true
@@ -14,12 +14,7 @@ const userNameSchemaDefinition: MongooseSchemaDefinition<UserName> = {
 	}
 }
 
-export const userNameSchema = new Schema(userNameSchemaDefinition, {
-	_id: false,
-	id: false
-})
-
-const userPhoneSchemaDefinition: MongooseSchemaDefinition<UserPhone> = {
+export const userPhoneSchemaDefinition: MongooseSchemaDefinition<UserPhone> = {
 	value: {
 		type: String,
 		required: true
@@ -30,11 +25,6 @@ const userPhoneSchemaDefinition: MongooseSchemaDefinition<UserPhone> = {
 		validate: [{ validator: (val: string) => val.charAt(0) === '+' }]
 	}
 }
-
-export const userPhoneSchema = new Schema(userPhoneSchemaDefinition, {
-	_id: false,
-	id: false
-})
 
 const userCodeSchemaDefinition: MongooseSchemaDefinition<UserCode> = {
 	value: {

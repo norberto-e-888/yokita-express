@@ -1,6 +1,10 @@
 import { Schema, model } from 'mongoose'
 import { MongooseSchemaDefinition } from '@yokita/common'
-import { userNameSchema, userCodeSchema, userPhoneSchema } from './sub-schemas'
+import {
+	userNameSchemaDefinition,
+	userCodeSchema,
+	userPhoneSchemaDefinition
+} from './sub-schemas'
 import { handlePreSave } from './hooks'
 import { isEmailInUse } from './statics'
 import {
@@ -16,7 +20,7 @@ import { VALID_EMAIL_REGEX } from '../../../constants'
 
 const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 	name: {
-		type: userNameSchema,
+		type: userNameSchemaDefinition,
 		required: true
 	},
 	email: {
@@ -34,7 +38,7 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		required: true
 	},
 	phone: {
-		type: userPhoneSchema
+		type: userPhoneSchemaDefinition
 	},
 	dob: {
 		type: Date,
