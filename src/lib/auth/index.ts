@@ -43,9 +43,7 @@ export const endUserAuthenticate = baseAuthenticate(
 	UserRole.SuperAdmin
 )
 
-export const isNotInProcessOf2FA: AppExtraCondition = (
-	user: UserPlainObject
-) => {
+export const isNotInProcessOf2FA: AppExtraCondition = (user) => {
 	return {
 		doesContidionPass: !user.is2FALoginOnGoing,
 		message: 'You must not be in process of 2FA login.'
