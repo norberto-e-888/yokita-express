@@ -7,7 +7,7 @@ export const updateProfileDtoJoiSchema = joi.object({
 		.object({
 			name: joi.object({
 				first: joi.string(),
-				middle: joi.string(),
+				middle: joi.string().allow(''),
 				last: joi.string()
 			}),
 			email: joi.string().email(),

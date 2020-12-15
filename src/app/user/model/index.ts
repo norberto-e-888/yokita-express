@@ -19,10 +19,7 @@ import { User, UserDocument, UserModel, UserRole } from '../typings'
 import { VALID_EMAIL_REGEX } from '../../../constants'
 
 const userSchemaDefinition: MongooseSchemaDefinition<User> = {
-	name: {
-		type: userNameSchemaDefinition,
-		required: true
-	},
+	name: userNameSchemaDefinition,
 	email: {
 		type: String,
 		match: VALID_EMAIL_REGEX,
@@ -30,16 +27,7 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		trim: true,
 		unique: true
 	},
-	password: {
-		type: String,
-		minlength: 8,
-		maxlength: 16,
-		trim: true,
-		required: true
-	},
-	phone: {
-		type: userPhoneSchemaDefinition
-	},
+	phone: userPhoneSchemaDefinition,
 	dob: {
 		type: Date,
 		validate: [
@@ -48,6 +36,13 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 				message: 'Debes ser mayor a # años' // TODO validate relative to min age requirement
 			}
 		]
+	},
+	password: {
+		type: String,
+		minlength: 8,
+		maxlength: 16,
+		trim: true,
+		required: true
 	},
 	role: {
 		type: String,
