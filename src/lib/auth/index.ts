@@ -1,9 +1,9 @@
 import { authenticate } from '@yokita/common'
-import { ExtraCondition } from '@yokita/common/build/middleware/authenticate'
 import { cacheService } from '../../app/cache'
 import { userModel } from '../../app/user'
 import { UserPlainObject, UserRole } from '../../app/user/typings'
 import env from '../../env'
+import { AppExtraCondition } from '../../typings'
 
 export const baseAuthenticate = authenticate({
 	userModel,
@@ -43,45 +43,72 @@ export const endUserAuthenticate = baseAuthenticate(
 	UserRole.SuperAdmin
 )
 
-export function isNotInProcessOf2FA(user: UserPlainObject): boolean {
-	return !user.is2FALoginOnGoing
+export const isNotInProcessOf2FA: AppExtraCondition = (
+	user: UserPlainObject
+) => {
+	return {
+		doesContidionPass: !user.is2FALoginOnGoing,
+		message: 'You must not be in process of 2FA login.'
+	}
 }
 
-export function isInProcessOf2FA(user: UserPlainObject): boolean {
-	return user.is2FALoginOnGoing
+export const isInProcessOf2FA: AppExtraCondition = (user: UserPlainObject) => {
+	return {
+		doesContidionPass: user.is2FALoginOnGoing,
+		message: 'You must be in process of login in with 2FA.'
+	}
 }
 
-export function isNotBlocked(user: UserPlainObject): boolean {
-	return !user.isBlocked
+export const isNotBlocked: AppExtraCondition = (user: UserPlainObject) => {
+	return { doesContidionPass: !user.isBlocked, message: 'You are blocked.' }
 }
 
-export function isPhoneVerified(user: UserPlainObject): boolean {
-	return user.isPhoneVerified
+export const isPhoneVerified: AppExtraCondition = (user) => {
+	return {
+		doesContidionPass: user.isPhoneVerified,
+		message: 'Your phone must be verified.'
+	}
 }
 
-export const isVerificationRequestNotRedundant: ExtraCondition = (
-	user: UserPlainObject,
+export const isVerificationRequestNotRedundant: AppExtraCondition = (
+	user,
 	req
 ) => {
 	if (req.params.info === 'phone' && user.isPhoneVerified) {
-		return false
+		return {
+			doesContidionPass: false,
+			message: 'Your phone is already verified.'
+		}
 	}
 
 	if (req.params.info === 'email' && user.isEmailVerified) {
-		return false
+		return {
+			doesContidionPass: false,
+			message: 'Your email is already verified.'
+		}
 	}
 
-	return true
+	return { doesContidionPass: true }
 }
 
-export const isVerificationResendRequestNotRedundantOrInvalid: ExtraCondition = (
-	user: UserPlainObject,
+export const isVerificationResendRequestNotRedundantOrInvalid: AppExtraCondition = (
+	user,
 	req
 ) => {
 	const type = req.params.type as 'email' | 'phone'
-	if (type === 'email' && user.isEmailVerified) return false
-	if (type === 'phone' && (user.isPhoneVerified || !user.phone)) return false
-	return true
+	if (type === 'email' && user.isEmailVerified)
+		return {
+			doesContidionPass: false,
+			message: 'Your email is already verified.'
+		}
+
+	if (type === 'phone' && (user.isPhoneVerified || !user.phone))
+		return {
+			doesContidionPass: false,
+			message: "Your phone is already verified or you don't have a phone set."
+		}
+
+	return { doesContidionPass: true }
 }
 
 export type BaseAuth = typeof baseAuthenticate
