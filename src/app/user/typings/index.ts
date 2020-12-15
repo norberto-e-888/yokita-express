@@ -5,8 +5,8 @@ export interface User extends CommonProperties {
 	name: UserName
 	email: string
 	phone?: UserPhone
-	role: UserRole
 	dob?: Date
+	role: UserRole
 	isEmailVerified: boolean
 	isPhoneVerified: boolean
 	isBlocked: boolean
