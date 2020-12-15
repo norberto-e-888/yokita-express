@@ -143,3 +143,7 @@ export type UserMethodSendVerification = (
 	type: 'email' | 'phone',
 	save?: boolean
 ) => Promise<void>
+
+export type UpdateUserDto = Partial<
+	Pick<User, 'name' | 'email' | 'phone' | 'dob'>
+>

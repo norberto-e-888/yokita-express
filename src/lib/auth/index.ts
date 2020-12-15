@@ -1,7 +1,7 @@
 import { authenticate } from '@yokita/common'
 import { cacheService } from '../../app/cache'
 import { userModel } from '../../app/user'
-import { UserPlainObject, UserRole } from '../../app/user/typings'
+import { UserRole } from '../../app/user/typings'
 import env from '../../env'
 import { AppExtraCondition } from '../../typings'
 
