@@ -24,7 +24,7 @@ export const setCode: UserMethodSetCode = async function (
 	}
 
 	if (save || session) {
-		await this.save({ validateBeforeSave: false, session })
+		await this.save({ validateModifiedOnly: true, session })
 	}
 
 	return code
@@ -87,7 +87,7 @@ export const verifyInfo: UserMethodVerifyInfo = async function (
 
 		this[propertyToUpdate] = true
 		this[info] = undefined
-		await this.save({ validateBeforeSave: false })
+		await this.save({ validateModifiedOnly: true })
 	}
 
 	if (!isCodeValid && options?.throwIfInvalid) {

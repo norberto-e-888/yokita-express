@@ -68,11 +68,11 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			})
 
 			user.is2FALoginOnGoing = true
-			await user.save({ validateBeforeSave: false })
+			await user.save({ validateModifiedOnly: true })
 			deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
 		} else {
 			user.is2FALoginOnGoing = false
-			await user.save({ validateBeforeSave: false })
+			await user.save({ validateModifiedOnly: true })
 		}
 
 		return await _generateAuthenticationResult(user, ipAddress)
@@ -131,7 +131,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			user.twoFactorAuthCode = undefined
 			user.is2FALoginOnGoing = false
 			user.refreshToken = undefined
-			await user.save({ validateBeforeSave: false })
+			await user.save({ validateModifiedOnly: true })
 			throw new AppError('Expired 2FA token', 400)
 		}
 
@@ -141,7 +141,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		user.twoFactorAuthCode = undefined
 		user.is2FALoginOnGoing = false
-		await user.save({ validateBeforeSave: false })
+		await user.save({ validateModifiedOnly: true })
 		return await _generateAuthenticationResult(user, ipAddress)
 	}
 
@@ -198,7 +198,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		if (user.is2FAEnabled) {
 			user.is2FAEnabled = false
-			await user.save({ validateBeforeSave: false })
+			await user.save({ validateModifiedOnly: true })
 			return user.toObject()
 		}
 
@@ -207,7 +207,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		}
 
 		user.is2FAEnabled = true
-		await user.save({ validateBeforeSave: false })
+		await user.save({ validateModifiedOnly: true })
 		return user.toObject()
 	}
 
@@ -300,7 +300,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		const refreshTokenPayload: RefreshTokenPayload = { ip }
 		const refreshToken = _generateRefreshToken(refreshTokenPayload)
 		user.refreshToken = await deps.bcrypt.hash(refreshToken, 6)
-		await user.save({ validateBeforeSave: false })
+		await user.save({ validateModifiedOnly: true })
 		const authenticationToken = _generateAccessToken({
 			id: user.id
 		})
