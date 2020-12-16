@@ -25,7 +25,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		next: NextFunction
 	): Promise<Response | void> {
 		try {
-			const authResult = await deps.authService.signUp(req.body, req.ip)
+			const authResult = await deps.authService.signUp(req.body)
 			return _sendAuthenticationResult(res, authResult, true)
 		} catch (error) {
 			return next(error)
@@ -38,7 +38,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		next: NextFunction
 	): Promise<Response | void> {
 		try {
-			const authResult = await deps.authService.signIn(req.body, req.ip)
+			const authResult = await deps.authService.signIn(req.body)
 			return _sendAuthenticationResult(res, authResult)
 		} catch (error) {
 			return next(error)
@@ -53,7 +53,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		try {
 			const authResult = await deps.authService.twoFactorAuthentication(
 				req.user?.id as string,
-				req.ip,
 				req.body.code
 			)
 
@@ -180,8 +179,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 				req.params.info as string,
 				req.params.via as 'email' | 'sms',
 				req.params.code as string,
-				req.body.newPassword as string,
-				req.ip
+				req.body.newPassword as string
 			)
 
 			return _sendAuthenticationResult(res, authResult)
@@ -206,8 +204,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 
 			const newAccessToken = await deps.authService.refreshAccessToken(
 				req.user as User,
-				req.cookies.refreshToken,
-				req.ip
+				req.cookies.refreshToken
 			)
 
 			return res.status(200).cookie('jwt', newAccessToken, COOKIE_OPTIONS).end()

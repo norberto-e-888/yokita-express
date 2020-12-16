@@ -24,7 +24,7 @@ export type AccessTokenPayload = {
 }
 
 export type RefreshTokenPayload = {
-	ip: string
+	id: string
 }
 
 export type TwoFactorAuthTokenPayload = {

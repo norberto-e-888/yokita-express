@@ -31,23 +31,17 @@ import { EMAIL_EVENTS } from '../../email'
 import { CACHE_EVENTS } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
-	async function signUp(
-		signUpDto: SignUpDto,
-		ipAddress: string
-	): Promise<AuthenticationResult> {
+	async function signUp(signUpDto: SignUpDto): Promise<AuthenticationResult> {
 		await deps.userModel.isEmailInUse(signUpDto.email)
 		const newUser = (await deps.userRepository.create<SignUpDto>(signUpDto, {
 			returnPlainObject: false
 		})) as UserDocument
 
-		const authResult = await _generateAuthenticationResult(newUser, ipAddress)
+		const authResult = await _generateAuthenticationResult(newUser)
 		return authResult
 	}
 
-	async function signIn(
-		credentials: SignInDto,
-		ipAddress: string
-	): Promise<AuthenticationResult> {
+	async function signIn(credentials: SignInDto): Promise<AuthenticationResult> {
 		const user = await deps.userModel.findOne({
 			email: credentials.email
 		})
@@ -75,7 +69,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			await user.save({ validateModifiedOnly: true })
 		}
 
-		return await _generateAuthenticationResult(user, ipAddress)
+		return await _generateAuthenticationResult(user)
 	}
 
 	async function resend2FACode(userId: string): Promise<void> {
@@ -108,7 +102,6 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 	async function twoFactorAuthentication(
 		userId: string,
-		ipAddress: string,
 		triedCode: string
 	): Promise<AuthenticationResult> {
 		const user = (await deps.userRepository.findById(userId, {
@@ -142,7 +135,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		user.twoFactorAuthCode = undefined
 		user.is2FALoginOnGoing = false
 		await user.save({ validateModifiedOnly: true })
-		return await _generateAuthenticationResult(user, ipAddress)
+		return await _generateAuthenticationResult(user)
 	}
 
 	async function signOut(userId: string): Promise<void> {
@@ -157,8 +150,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 	async function refreshAccessToken(
 		user: User,
-		refreshToken: string,
-		ipAddress: string
+		refreshToken: string
 	): Promise<string> {
 		const userDocument = (await deps.userRepository.findById(user.id, {
 			failIfNotFound: true
@@ -182,7 +174,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			env.auth.jwtSecretRefreshToken
 		) as RefreshTokenPayload
 
-		if (payload.ip !== ipAddress) {
+		if (payload.id !== userDocument.id) {
 			throw new AppError('Unauthenticated.', 401)
 		}
 
@@ -268,8 +260,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		info: string,
 		via: 'sms' | 'email',
 		triedCode: string,
-		newPassword: string,
-		ip: string
+		newPassword: string
 	): Promise<AuthenticationResult> {
 		const criteria =
 			via === 'sms'
@@ -289,15 +280,14 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			throw new AppError('You did not ask for a password reset code', 400)
 		}
 
-		return _generateAuthenticationResult(user, ip)
+		return _generateAuthenticationResult(user)
 	}
 
 	async function _generateAuthenticationResult(
-		userDocument: UserDocument,
-		ip: string
+		userDocument: UserDocument
 	): Promise<AuthenticationResult> {
 		const user = userDocument
-		const refreshTokenPayload: RefreshTokenPayload = { ip }
+		const refreshTokenPayload: RefreshTokenPayload = { id: user.id }
 		const refreshToken = _generateRefreshToken(refreshTokenPayload)
 		user.refreshToken = await deps.bcrypt.hash(refreshToken, 6)
 		await user.save({ validateModifiedOnly: true })
