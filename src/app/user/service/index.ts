@@ -26,7 +26,7 @@ export const userSeviceFactory = (deps: UserServiceDependencies) => {
 	return { updateProfile }
 }
 
-export default userSeviceFactory({ userRepository, userModel: userModel })
+export default userSeviceFactory({ userRepository, userModel })
 
 export type UserService = ReturnType<typeof userSeviceFactory>
 export type UserServiceDependencies = {
