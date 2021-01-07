@@ -1,7 +1,13 @@
 import { AppError, generateCode } from '@yokita/common'
 import brcrypt from 'bcryptjs'
-import { EmailJob, EmailJobsData, emailQueue, eventEmitter } from '../../../lib'
-import { SMS_EVENTS } from '../../sms'
+import {
+	EmailJob,
+	EmailJobsData,
+	emailQueue,
+	SMSJob,
+	SMSJobsData,
+	smsQueue
+} from '../../../lib'
 import {
 	UserMethodIsPasswordValid,
 	UserMethodSetCode,
@@ -157,6 +163,7 @@ export const sendVerification: UserMethodSendVerification = async function (
 			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
-		eventEmitter.emit(SMS_EVENTS.sendVerification, this, smsCode)
+		const data: SMSJobsData[SMSJob.Verification] = { user: this, code: smsCode }
+		smsQueue.add(SMSJob.Verification, data)
 	}
 }

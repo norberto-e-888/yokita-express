@@ -1,10 +1,13 @@
 import twilio, { Twilio } from 'twilio'
 import env from '../../../env'
-import { UserDocument, UserPhone } from '../../user'
+import { UserDocument, UserPhone, UserPlainObject } from '../../user'
 
 export const twilioClient = twilio(env.twilio.sid, env.twilio.authToken)
 export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
-	async function sendVerification(user: UserDocument, code: string) {
+	async function sendVerification(
+		user: UserDocument | UserPlainObject,
+		code: string
+	) {
 		try {
 			if (!user.phone) return
 			await _send(
@@ -17,7 +20,7 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 	}
 
 	async function sendPasswordResetCode(
-		user: UserDocument,
+		user: UserDocument | UserPlainObject,
 		code: string
 	): Promise<void> {
 		if (!user.phone) return
@@ -27,7 +30,10 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 		)
 	}
 
-	async function send2FACode(user: UserDocument, code: string): Promise<void> {
+	async function send2FACode(
+		user: UserDocument | UserPlainObject,
+		code: string
+	): Promise<void> {
 		if (!user.phone) return
 		await _send(user.phone, `Your 2FA code is ${code}`)
 	}

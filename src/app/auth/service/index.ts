@@ -30,9 +30,12 @@ import {
 	EmailJobsData,
 	emailQueue,
 	EmailQueue,
-	eventEmitter
+	eventEmitter,
+	SMSJob,
+	SMSJobsData,
+	smsQueue,
+	SMSQueue
 } from '../../../lib'
-import { SMS_EVENTS } from '../../sms'
 import { CACHE_EVENTS } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
@@ -68,7 +71,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 			user.is2FALoginOnGoing = true
 			await user.save({ validateModifiedOnly: true })
-			deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
+			const data: SMSJobsData[SMSJob.TwoFA] = { user, code }
+			deps.smsQueue.add(SMSJob.TwoFA, data)
 		} else {
 			user.is2FALoginOnGoing = false
 			await user.save({ validateModifiedOnly: true })
@@ -91,7 +95,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			expiresIn: 1000 * 60 * 60 * 6
 		})
 
-		deps.eventEmitter.emit(SMS_EVENTS.send2FACode, user, code)
+		const data: SMSJobsData[SMSJob.TwoFA] = { user, code }
+		deps.smsQueue.add(SMSJob.TwoFA, data)
 	}
 
 	async function resendVerification(
@@ -258,7 +263,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			const data: EmailJobsData[EmailJob.PasswordReset] = { user, code }
 			deps.emailQueue.add(EmailJob.PasswordReset, data)
 		} else {
-			deps.eventEmitter.emit(SMS_EVENTS.sendVerification, user, code)
+			const data: SMSJobsData[SMSJob.PasswordReset] = { user, code }
+			deps.smsQueue.add(SMSJob.PasswordReset, data)
 		}
 	}
 
@@ -343,11 +349,12 @@ export default authServiceFactory({
 	blacklistModel,
 	eventEmitter,
 	generateCode,
-	emailQueue
+	emailQueue,
+	smsQueue
 })
 
 export type AuthService = ReturnType<typeof authServiceFactory>
-export interface AuthServiceDependencies {
+export type AuthServiceDependencies = {
 	userRepository: GenericFunctionalRepository
 	userModel: UserModel
 	jwt: JWT
@@ -356,4 +363,5 @@ export interface AuthServiceDependencies {
 	eventEmitter: EventEmitter
 	generateCode: GenerateCode
 	emailQueue: EmailQueue
+	smsQueue: SMSQueue
 }
