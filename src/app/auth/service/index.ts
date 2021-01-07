@@ -25,9 +25,14 @@ import {
 import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
 import { BlacklistEntryModel } from '../../blacklist/typings'
-import { eventEmitter } from '../../../lib'
+import {
+	EmailJob,
+	EmailJobsData,
+	emailQueue,
+	EmailQueue,
+	eventEmitter
+} from '../../../lib'
 import { SMS_EVENTS } from '../../sms'
-import { EMAIL_EVENTS } from '../../email'
 import { CACHE_EVENTS } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
@@ -250,7 +255,8 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		})
 
 		if (via === 'email') {
-			deps.eventEmitter.emit(EMAIL_EVENTS.sendVerification, user, code)
+			const data: EmailJobsData[EmailJob.PasswordReset] = { user, code }
+			deps.emailQueue.add(EmailJob.PasswordReset, data)
 		} else {
 			deps.eventEmitter.emit(SMS_EVENTS.sendVerification, user, code)
 		}
@@ -336,7 +342,8 @@ export default authServiceFactory({
 	bcrypt,
 	blacklistModel,
 	eventEmitter,
-	generateCode
+	generateCode,
+	emailQueue
 })
 
 export type AuthService = ReturnType<typeof authServiceFactory>
@@ -347,6 +354,6 @@ export interface AuthServiceDependencies {
 	bcrypt: BCrypt
 	blacklistModel: BlacklistEntryModel
 	eventEmitter: EventEmitter
-
 	generateCode: GenerateCode
+	emailQueue: EmailQueue
 }

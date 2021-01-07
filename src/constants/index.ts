@@ -22,3 +22,5 @@ export const COMMON_TRANSACTION_OPTIONS = {
 	readConcern: { level: 'local' },
 	writeConcern: { w: 'majority' }
 }
+
+export const EMAIL_QUEUE_NAME = 'emailQueue'

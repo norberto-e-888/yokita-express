@@ -1,7 +1,6 @@
 import { AppError, generateCode } from '@yokita/common'
 import brcrypt from 'bcryptjs'
-import { eventEmitter } from '../../../lib'
-import { EMAIL_EVENTS } from '../../email'
+import { EmailJob, EmailJobsData, emailQueue, eventEmitter } from '../../../lib'
 import { SMS_EVENTS } from '../../sms'
 import {
 	UserMethodIsPasswordValid,
@@ -136,7 +135,12 @@ export const sendVerification: UserMethodSendVerification = async function (
 			expiresIn: 1000 * 60 * 60 * 24 * 2
 		})
 
-		eventEmitter.emit(EMAIL_EVENTS.sendVerification, this, emailCode)
+		const data: EmailJobsData[EmailJob.Verification] = {
+			user: this,
+			code: emailCode
+		}
+
+		emailQueue.add(EmailJob.Verification, data)
 	} else {
 		if (!this.phone) {
 			throw new AppError('You do not have a phone number to verify', 400)
