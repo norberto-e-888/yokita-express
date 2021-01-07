@@ -7,13 +7,15 @@ import { User, UserDocument, UserRole } from '../../user/typings'
 import authService, { AuthService } from '../service'
 import { AuthenticationResult, SignUpDto } from '../typings'
 import { AppError, GenericFunctionalRepository } from '@yokita/common'
-import { eventEmitter } from '../../../lib'
-import { RedisClient } from 'redis'
 import {
-	BLACKLIST_EVENTS,
-	blacklistService,
-	BlacklistService
-} from '../../blacklist'
+	BlacklistJob,
+	BlacklistJobsData,
+	blacklistQueue,
+	BlacklistQueue,
+	eventEmitter
+} from '../../../lib'
+import { RedisClient } from 'redis'
+import { blacklistService, BlacklistService } from '../../blacklist'
 import { CacheService, redisClient } from '../../cache/service'
 import { cacheService } from '../../cache'
 import { userRepository } from '../../user'
@@ -268,7 +270,8 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 				)
 
 			if (isUnknownOrForbiddenRoleBeingSet) {
-				deps.eventEmitter.emit(BLACKLIST_EVENTS.addIPToBlacklist, req.ip)
+				const data: BlacklistJobsData[BlacklistJob.AddIpToBlacklist] = req.ip
+				deps.blacklistQueue.add(BlacklistJob.AddIpToBlacklist, data)
 				throw new AppError('Perpetually blocked', 403)
 			}
 
@@ -338,7 +341,8 @@ export default authControllerFactory({
 	redisClient,
 	blacklistService,
 	cacheService,
-	userRepository
+	userRepository,
+	blacklistQueue
 })
 
 export type AuthControllerDependencies = {
@@ -349,6 +353,7 @@ export type AuthControllerDependencies = {
 	blacklistService: BlacklistService
 	cacheService: CacheService
 	userRepository: GenericFunctionalRepository
+	blacklistQueue: BlacklistQueue
 }
 
 export type AuthController = ReturnType<typeof authControllerFactory>

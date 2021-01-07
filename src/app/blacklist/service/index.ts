@@ -45,7 +45,6 @@ export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 	}
 
 	async function blacklistUser(userId: string, ip: string): Promise<void> {
-		eventEmitter.emit(BLACKLIST_EVENTS.addIPToBlacklist, ip)
 		const session = await deps.userModel.db.startSession()
 		try {
 			await session.withTransaction(
