@@ -19,7 +19,7 @@ const baseAuthenticate = authenticate({
 	getCachedUser: cacheService.getCachedUser,
 	jwtSecret: env.auth.jwtSecretAccessToken,
 	jwtIn: 'cookies',
-	jwtKeyName: 'jwt',
+	jwtKeyName: 'accessToken',
 	ignoreExpirationURLs: ['/auth/refresh']
 })
 
