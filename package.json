@@ -1,7 +1,7 @@
 {
-	"name": "server-printo",
+	"name": "backend-boilerplate",
 	"version": "1.0.0",
-	"description": "Servidor de Printoooo",
+	"description": "Node.js API Boilerplate",
 	"main": "src/index.ts",
 	"scripts": {
 		"test": "npm run test",
@@ -9,7 +9,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/norberto-e-888/printo-server.git"
+		"url": "git+https://github.com/norberto-e-888/backend-boilerplate.git"
 	},
 	"author": "Norberto E. Cáceres C.",
 	"license": "SEE LICENSE IN LICENSE",
