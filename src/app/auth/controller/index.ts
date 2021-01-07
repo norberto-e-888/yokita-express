@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { EventEmitter } from 'events'
 import bcrypt from 'bcryptjs'
 import { ALLOWED_ROLES, COOKIE_OPTIONS } from '../../../constants'
 import { BCrypt } from '../../../typings'
@@ -11,8 +10,7 @@ import {
 	BlacklistJob,
 	BlacklistJobsData,
 	blacklistQueue,
-	BlacklistQueue,
-	eventEmitter
+	BlacklistQueue
 } from '../../../lib'
 import { RedisClient } from 'redis'
 import { blacklistService, BlacklistService } from '../../blacklist'
@@ -337,7 +335,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 export default authControllerFactory({
 	authService,
 	bcrypt,
-	eventEmitter,
 	redisClient,
 	blacklistService,
 	cacheService,
@@ -348,7 +345,6 @@ export default authControllerFactory({
 export type AuthControllerDependencies = {
 	authService: AuthService
 	bcrypt: BCrypt
-	eventEmitter: EventEmitter
 	redisClient: RedisClient
 	blacklistService: BlacklistService
 	cacheService: CacheService

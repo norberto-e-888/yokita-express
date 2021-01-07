@@ -24,5 +24,6 @@ export const COMMON_TRANSACTION_OPTIONS = {
 }
 
 export const EMAIL_QUEUE_NAME = 'emailQueue'
-export const BLACKLIST_QUEUE_NAME = 'blacklistQueueName'
-export const SMS_QUEUE_NAME = 'smsQueueName'
+export const BLACKLIST_QUEUE_NAME = 'blacklistQueue'
+export const SMS_QUEUE_NAME = 'smsQueue'
+export const CACHE_QUEUE_NAME = 'cacheQueue'

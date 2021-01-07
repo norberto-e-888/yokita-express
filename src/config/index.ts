@@ -1,4 +1,3 @@
-import './events'
 import { Express } from 'express'
 import expressConfig from './express'
 import mongooseConfig from './mongoose'

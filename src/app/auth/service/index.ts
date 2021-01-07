@@ -4,7 +4,6 @@ import {
 	GenericFunctionalRepository
 } from '@yokita/common'
 import jwt from 'jsonwebtoken'
-import { EventEmitter } from 'events'
 import bcrypt from 'bcryptjs'
 import env from '../../../env'
 import { BCrypt, GenerateCode, JWT } from '../../../typings'
@@ -26,17 +25,18 @@ import userModel from '../../user/model'
 import blacklistModel from '../../blacklist/model'
 import { BlacklistEntryModel } from '../../blacklist/typings'
 import {
+	CacheJob,
+	cacheQueue,
+	CacheQueue,
 	EmailJob,
 	EmailJobsData,
 	emailQueue,
 	EmailQueue,
-	eventEmitter,
 	SMSJob,
 	SMSJobsData,
 	smsQueue,
 	SMSQueue
 } from '../../../lib'
-import { CACHE_EVENTS } from '../../cache/service'
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(signUpDto: SignUpDto): Promise<AuthenticationResult> {
@@ -155,7 +155,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			is2FALoginOnGoing: false
 		})
 
-		deps.eventEmitter.emit(CACHE_EVENTS.invalidateUserCache, userId)
+		deps.cacheQueue.add(CacheJob.InvalidateUserCache, userId)
 	}
 
 	async function refreshAccessToken(
@@ -347,10 +347,10 @@ export default authServiceFactory({
 	jwt,
 	bcrypt,
 	blacklistModel,
-	eventEmitter,
 	generateCode,
 	emailQueue,
-	smsQueue
+	smsQueue,
+	cacheQueue
 })
 
 export type AuthService = ReturnType<typeof authServiceFactory>
@@ -360,8 +360,8 @@ export type AuthServiceDependencies = {
 	jwt: JWT
 	bcrypt: BCrypt
 	blacklistModel: BlacklistEntryModel
-	eventEmitter: EventEmitter
 	generateCode: GenerateCode
 	emailQueue: EmailQueue
 	smsQueue: SMSQueue
+	cacheQueue: CacheQueue
 }

@@ -1,6 +1,4 @@
 import { RedisClient } from 'redis'
-import { EventEmitter } from 'events'
-import { eventEmitter } from '../../../lib'
 import { BlacklistEntryCreateDTO, BlacklistEntryModel } from '../typings'
 import { blacklistModel } from '..'
 import { UserDocument, UserModel } from '../../user/typings'
@@ -106,7 +104,6 @@ export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 
 export default blacklistServiceFactory({
 	redisClient,
-	eventEmitter,
 	blacklistModel,
 	userModel,
 	userRepository
@@ -120,7 +117,6 @@ export const BLACKLIST_EVENTS = {
 export type BlacklistService = ReturnType<typeof blacklistServiceFactory>
 export type BlacklistServiceDependencies = {
 	redisClient: RedisClient
-	eventEmitter: EventEmitter
 	blacklistModel: BlacklistEntryModel
 	userModel: UserModel
 	userRepository: GenericFunctionalRepository
