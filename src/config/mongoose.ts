@@ -1,5 +1,4 @@
 import mongoose from 'mongoose'
-import { Db } from 'mongodb'
 import env from '../env'
 
 mongoose.set('debug', env.nodeEnv === 'development')
@@ -10,17 +9,13 @@ export default async ({
 	useCreateIndex,
 	useFindAndModify,
 	useUnifiedTopology
-}: MongooseConfigOptions): Promise<Db> => {
-	const {
-		connection: { db }
-	} = await mongoose.connect(mongoDbUri, {
+}: MongooseConfigOptions): Promise<void> => {
+	await mongoose.connect(mongoDbUri, {
 		useNewUrlParser,
 		useCreateIndex,
 		useFindAndModify,
 		useUnifiedTopology
 	})
-
-	return db
 }
 
 export interface MongooseConfigOptions {
