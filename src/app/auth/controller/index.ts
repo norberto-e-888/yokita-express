@@ -120,7 +120,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		try {
 			await deps.authService.signOut(req.user?.id as string)
 			return res
-				.clearCookie('jwt', COOKIE_OPTIONS)
+				.clearCookie('accessToken', COOKIE_OPTIONS)
 				.clearCookie('refreshToken', COOKIE_OPTIONS)
 				.end()
 		} catch (error) {
@@ -207,7 +207,10 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 				req.cookies.refreshToken
 			)
 
-			return res.status(200).cookie('jwt', newAccessToken, COOKIE_OPTIONS).end()
+			return res
+				.status(200)
+				.cookie('accessToken', newAccessToken, COOKIE_OPTIONS)
+				.end()
 		} catch (error) {
 			handleSignOut(req, res, next)
 		}
@@ -309,7 +312,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 	): Response {
 		return res
 			.status(isSignUp ? 201 : 200)
-			.cookie('jwt', authResult.jwt, COOKIE_OPTIONS)
+			.cookie('accessToken', authResult.accessToken, COOKIE_OPTIONS)
 			.cookie('refreshToken', authResult.refreshToken, COOKIE_OPTIONS)
 			.json(authResult.user)
 	}

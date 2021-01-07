@@ -15,7 +15,7 @@ export type SignInDto = {
 
 export type AuthenticationResult = {
 	user: User
-	jwt: string
+	accessToken: string
 	refreshToken: string
 }
 

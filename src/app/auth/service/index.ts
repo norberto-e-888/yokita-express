@@ -309,7 +309,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 
 		return {
 			user: user.toObject(),
-			jwt: authenticationToken,
+			accessToken: authenticationToken,
 			refreshToken
 		}
 	}
