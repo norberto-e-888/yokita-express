@@ -42,7 +42,7 @@ declare global {
 			mockAuthenticate(
 				dto: SignUpDto | SignInDto,
 				type?: 'sign-in' | 'sign-up'
-			): Promise<UserDocument>
+			): Promise<{ accessToken: string; refreshToken: string }>
 		}
 	}
 }

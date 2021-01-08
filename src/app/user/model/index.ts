@@ -27,7 +27,10 @@ const userSchemaDefinition: MongooseSchemaDefinition<User> = {
 		trim: true,
 		unique: true
 	},
-	phone: userPhoneSchemaDefinition,
+	phone: {
+		type: userPhoneSchemaDefinition,
+		required: false
+	},
 	dob: {
 		type: Date,
 		validate: [

@@ -13,6 +13,11 @@ export type SignInDto = {
 	password: string
 }
 
+export type ChangePasswordDto = {
+	password: string
+	newPassword: string
+}
+
 export type AuthenticationResult = {
 	user: User
 	accessToken: string
