@@ -10,6 +10,7 @@ import { userApi } from '../app/user'
 import { smsApi } from '../app/sms'
 import { authController } from '../app/auth'
 import env from '../env'
+import { basicLimiter } from '../lib'
 
 export default (app: Express): void => {
 	app.use(helmet())
@@ -21,6 +22,7 @@ export default (app: Express): void => {
 		})
 	)
 
+	app.use(basicLimiter)
 	app.use(bodyParser.json())
 	app.use(cookieParser())
 	app.use(mongoSanitize())

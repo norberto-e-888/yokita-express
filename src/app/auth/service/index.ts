@@ -304,7 +304,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 			failIfNotFound: true
 		})) as UserDocument
 
-		user.isPasswordValid(dto.password, { throwIfInvalid: true })
+		await user.isPasswordValid(dto.password, { throwIfInvalid: true })
 		user.password = dto.newPassword
 		await user.save({ validateModifiedOnly: true })
 		return user.toObject()
