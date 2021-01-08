@@ -1,6 +1,6 @@
 import { blacklistQueueScheduler } from './blacklist'
 import { cacheQueueScheduler } from './cache'
-import { emailQueueScheduler } from './email'
+import { EmailJob, emailQueue, emailQueueScheduler } from './email'
 import { smsQueueScheduler } from './sms'
 
 export async function configureQueues(): Promise<void> {
@@ -8,6 +8,11 @@ export async function configureQueues(): Promise<void> {
 	await cacheQueueScheduler.waitUntilReady()
 	await emailQueueScheduler.waitUntilReady()
 	await smsQueueScheduler.waitUntilReady()
+
+	emailQueue.add(EmailJob.SendErrorsToAdmins, undefined, {
+		repeat: { cron: '0 0 0 * * ?' },
+		attempts: 3
+	})
 }
 
 export * from './blacklist'

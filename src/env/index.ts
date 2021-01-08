@@ -49,6 +49,8 @@ if (!twilioNumber) {
 	throw new Error('TWILIO_NUMBER is not set.')
 }
 
+const adminEmails = process.env.ADMIN_EMAILS
+
 export default {
 	nodeEnv,
 	port,
@@ -69,5 +71,6 @@ export default {
 		sid: twilioSid,
 		authToken: twilioAuthToken,
 		number: twilioNumber
-	}
+	},
+	adminEmails: adminEmails ? adminEmails.split(',') : []
 }

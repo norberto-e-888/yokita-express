@@ -1,6 +1,7 @@
 import sendgridClient, { MailDataRequired, MailService } from '@sendgrid/mail'
 import { VALID_EMAIL_REGEX } from '../../../constants'
 import env from '../../../env'
+import { logger } from '../../../lib'
 import { UserDocument, UserPlainObject } from '../../user'
 
 sendgridClient.setApiKey(env.sendgrid.apiKey)
@@ -34,6 +35,31 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 		})
 	}
 
+	async function sendErrorsToAdmin({
+		content,
+		filename,
+		type
+	}: EmailAttachment): Promise<void> {
+		const promises = env.adminEmails.map((to) =>
+			_send({
+				to,
+				from: env.sendgrid.from,
+				subject: 'Boilerplate errors',
+				text: 'See attached file',
+				attachments: [
+					{
+						content,
+						filename,
+						type,
+						disposition: 'attachment'
+					}
+				]
+			})
+		)
+
+		await Promise.all(promises)
+	}
+
 	async function _send(data: MailDataRequired): Promise<void> {
 		try {
 			if (!VALID_EMAIL_REGEX.test(data.to as string)) {
@@ -42,11 +68,11 @@ export const emailServiceFactory = (deps: EmailServiceDependencies) => {
 
 			await deps.sendgridClient.send(data)
 		} catch (error) {
-			console.error(error)
+			logger.error('email.service._send %o', error)
 		}
 	}
 
-	return { sendEmailVerification, sendPasswordResetCode }
+	return { sendEmailVerification, sendPasswordResetCode, sendErrorsToAdmin }
 }
 
 export default emailServiceFactory({ sendgridClient })
@@ -57,4 +83,10 @@ export const EMAIL_EVENTS = {
 export type EmailService = ReturnType<typeof emailServiceFactory>
 export type EmailServiceDependencies = {
 	sendgridClient: MailService
+}
+
+export type EmailAttachment = {
+	content: string
+	filename: string
+	type: string
 }

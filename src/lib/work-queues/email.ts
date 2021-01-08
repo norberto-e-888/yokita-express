@@ -1,5 +1,6 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq'
 import IORedis from 'ioredis'
+import fs from 'fs'
 import { emailService } from '../../app/email'
 import { UserPlainObject } from '../../app/user'
 import { EMAIL_QUEUE_NAME } from '../../constants'
@@ -30,6 +31,18 @@ export const emailQueueWorker = new Worker<EmailJobsDataTypes, void, EmailJob>(
 				await emailService.sendPasswordResetCode(typedData.user, typedData.code)
 				break
 
+			case EmailJob.SendErrorsToAdmins:
+				const pathToErrorsLog = `${__dirname}/../../logs/errors.log`
+				const attachement = fs.readFileSync(pathToErrorsLog).toString('base64')
+				await emailService.sendErrorsToAdmin({
+					content: attachement,
+					filename: 'boilerplate-errors.txt',
+					type: 'text'
+				})
+
+				fs.writeFileSync(pathToErrorsLog, '')
+				break
+
 			default:
 				throw new Error(`Invalid email worker job name: ${name}`)
 		}
@@ -42,7 +55,8 @@ export const emailQueueWorker = new Worker<EmailJobsDataTypes, void, EmailJob>(
 
 export enum EmailJob {
 	PasswordReset = 'passwordResetEmail',
-	Verification = 'verificationEmail'
+	Verification = 'verificationEmail',
+	SendErrorsToAdmins = 'sendErrorsToAdmin'
 }
 
 type EmailPasswordResetJobData = {
@@ -55,7 +69,10 @@ type EmailVerificationJobData = {
 	code: string
 }
 
-type EmailJobsDataTypes = EmailPasswordResetJobData | EmailVerificationJobData
+type EmailJobsDataTypes =
+	| EmailPasswordResetJobData
+	| EmailVerificationJobData
+	| undefined
 
 export type EmailJobsData = {
 	[EmailJob.PasswordReset]: EmailPasswordResetJobData

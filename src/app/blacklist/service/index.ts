@@ -6,6 +6,7 @@ import { ClientSession } from 'mongoose'
 import { userModel, userRepository } from '../../user'
 import { GenericFunctionalRepository } from '@yokita/common'
 import { redisClient } from '../../cache/service'
+import { logger } from '../../../lib'
 
 export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 	function blacklistIp(ip: string) {
@@ -20,8 +21,7 @@ export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 					})
 			})
 		} catch (error) {
-			console.log(`ERROR BLACKLISTING ${ip}`)
-			console.error(error)
+			logger.error('blacklist.service.blacklistIp %o', error)
 		}
 	}
 
@@ -37,8 +37,7 @@ export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 					})
 			})
 		} catch (error) {
-			console.log(`ERROR WHITELISTING ${ip}`)
-			console.error(error)
+			logger.error('blacklist.service.whitelistIp %o', error)
 		}
 	}
 
@@ -73,11 +72,7 @@ export const blacklistServiceFactory = (deps: BlacklistServiceDependencies) => {
 				}
 			)
 		} catch (error) {
-			console.log(
-				`ERROR BLACKLISTING KNOWN USER OF ID: ${userId} and IP: ${ip}`
-			)
-
-			console.error(error)
+			logger.error('blacklist.service.blacklistUser %o', error)
 		} finally {
 			session.endSession()
 		}
