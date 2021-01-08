@@ -3,7 +3,7 @@ import { Express } from 'express'
 import env from '../env'
 import main from '..'
 import { UserDocument } from '../app/user'
-import { mockAuthenticate, mockSignUp } from './helpers'
+import { authenticate, mockSignUp } from './helpers'
 import { SignInDto, SignUpDto } from '../app/auth'
 
 beforeAll(async () => {
@@ -31,7 +31,7 @@ afterAll(async () => {
 })
 
 global.mockSignUp = mockSignUp
-global.mockAuthenticate = mockAuthenticate
+global.authenticate = authenticate
 
 declare global {
 	namespace NodeJS {
@@ -39,10 +39,17 @@ declare global {
 			app: Express
 			connection: Mongoose
 			mockSignUp(dto: SignUpDto): Promise<UserDocument>
-			mockAuthenticate(
+			authenticate(
 				dto: SignUpDto | SignInDto,
 				type?: 'sign-in' | 'sign-up'
-			): Promise<{ accessToken: string; refreshToken: string }>
+			): Promise<{ accessToken: Cookie; refreshToken: Cookie }>
 		}
+	}
+}
+
+type Cookie = {
+	value: string
+	flags: {
+		HttpOnly: boolean
 	}
 }

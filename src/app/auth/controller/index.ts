@@ -189,6 +189,23 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		}
 	}
 
+	async function handleChangePasword(
+		req: Request,
+		res: Response,
+		next: NextFunction
+	): Promise<Response | void> {
+		try {
+			const user = await deps.authService.changePassword(
+				req.user?.id as string,
+				req.body
+			)
+
+			return res.status(200).json(user)
+		} catch (error) {
+			return next(error)
+		}
+	}
+
 	async function handleRefreshAccessToken(
 		req: Request,
 		res: Response,
@@ -326,6 +343,7 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 		handleGetCurrentUser,
 		handleVerifyUserInfo,
 		handleResetPasword,
+		handleChangePasword,
 		handleRecoverAccount,
 		handle2FA,
 		handleResend2FACode,

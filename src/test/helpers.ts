@@ -8,7 +8,7 @@ export const mockSignUp = async (dto: SignUpDto): Promise<UserDocument> => {
 	return await User.create<SignUpDto>(dto)
 }
 
-export const mockAuthenticate = async (
+export const authenticate = async (
 	dto: SignUpDto | SignInDto,
 	type: 'sign-in' | 'sign-up' = 'sign-up'
 ) => {

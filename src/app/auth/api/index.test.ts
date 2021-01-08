@@ -9,19 +9,19 @@ describe('/auth', () => {
 				validChangePasswordDto.newPassword
 			)
 
-			const credentials = await global.mockAuthenticate(validSignUpDto)
+			const credentials = await global.authenticate(validSignUpDto)
 			const response = await request(global.app)
 				.patch('/auth/change-password')
-				.set('Cookie', ['accessToken=' + credentials.accessToken])
-				.send({
-					password: validChangePasswordDto.password,
-					newPassword: validChangePasswordDto.newPassword
-				})
+				.set('Cookie', ['accessToken=' + credentials.accessToken.value])
+				.send(validChangePasswordDto)
 
 			expect(response.status).toBe(200)
-			expect(response.body.password).toBe(validChangePasswordDto.newPassword)
 			const user = await userModel.findOne({ email: validSignUpDto.email })
-			expect(user?.password).toBe(validChangePasswordDto.password)
+			expect(
+				await user?.isPasswordValid(validChangePasswordDto.newPassword, {
+					throwIfInvalid: false
+				})
+			).toBe(true)
 		})
 	})
 })

@@ -81,6 +81,13 @@ export const authApiFactory = (deps: AuthApiFactoryDependencies) => {
 		)
 
 	router
+		.route('/change-password')
+		.patch(
+			deps.endUserAuthenticate(isNotInProcessOf2FA, isNotBlocked),
+			deps.authController.handleChangePasword
+		)
+
+	router
 		.route('/sign-out')
 		.patch(deps.endUserAuthenticate(), deps.authController.handleSignOut)
 

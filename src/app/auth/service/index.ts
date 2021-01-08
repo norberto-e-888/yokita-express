@@ -17,6 +17,7 @@ import {
 import {
 	AccessTokenPayload,
 	AuthenticationResult,
+	ChangePasswordDto,
 	RefreshTokenPayload,
 	SignInDto,
 	SignUpDto
@@ -295,6 +296,20 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		return _generateAuthenticationResult(user)
 	}
 
+	async function changePassword(
+		userId: string,
+		dto: ChangePasswordDto
+	): Promise<UserPlainObject> {
+		const user = (await deps.userRepository.findById(userId, {
+			failIfNotFound: true
+		})) as UserDocument
+
+		user.isPasswordValid(dto.password, { throwIfInvalid: true })
+		user.password = dto.newPassword
+		await user.save({ validateModifiedOnly: true })
+		return user.toObject()
+	}
+
 	async function _generateAuthenticationResult(
 		userDocument: UserDocument
 	): Promise<AuthenticationResult> {
@@ -332,6 +347,7 @@ export const authServiceFactory = (deps: AuthServiceDependencies) => {
 		signOut,
 		refreshAccessToken,
 		resetPassword,
+		changePassword,
 		verifyUserInfo,
 		twoFactorAuthentication,
 		recoverAccount,
