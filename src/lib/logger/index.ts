@@ -59,7 +59,7 @@ const logger = <CustomLeveledWinstonLogger>createLogger({
 				format.errors({ stack: true }),
 				customFileFormat
 			),
-			filename: 'logs.errors.log'
+			filename: 'src/logs/errors.log'
 		})
 	]
 })

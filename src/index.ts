@@ -9,6 +9,7 @@ export default async function main(): Promise<Express> {
 	await configureApp(app)
 	if (env.nodeEnv !== 'test') {
 		app.listen(env.port, () => {
+			logger.error('test')
 			logger.info('server running on port %s', env.port)
 		})
 	}
