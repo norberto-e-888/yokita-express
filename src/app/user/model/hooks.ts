@@ -1,5 +1,6 @@
 import { MongooseInstanceHook } from '@yokita/common'
 import brcrypt from 'bcryptjs'
+import env from '../../../env'
 import { cacheService } from '../../cache'
 import { UserDocument } from '../typings'
 
@@ -18,7 +19,7 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 		this.sendVerification('email')
 	}
 
-	if (this.isModified()) {
+	if (this.isModified() && env.nodeEnv !== 'test') {
 		cacheService.cacheUser(this.toObject(), (err) => {
 			if (err) {
 				cacheService.invalidateUserCache(this.id)
