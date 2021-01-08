@@ -35,18 +35,18 @@ const customConsoleFormat = format.printf(
 )
 
 const customFileFormat = format.printf(
-	({ message, timestamp }) => `${timestamp}: ${message}`
+	({ message, timestamp }) => `${timestamp} 💥 ${JSON.stringify(message)}`
 )
 
 const logger = <CustomLeveledWinstonLogger>createLogger({
 	levels: customConfig.levels,
+	format: format.combine(format.splat()),
 	transports: [
 		new transports.Console({
 			level: env.nodeEnv === 'development' ? 'trivial' : 'warning',
 			format: format.combine(
-				format.colorize(),
 				format.timestamp({ format: 'hh:mm:ss' }),
-				format.splat(),
+				format.colorize(),
 				format.label({ label: 'Boilerplate' }),
 				customConsoleFormat
 			)
@@ -54,8 +54,7 @@ const logger = <CustomLeveledWinstonLogger>createLogger({
 		new transports.File({
 			level: 'error',
 			format: format.combine(
-				format.timestamp({ format: 'hh:mm:ss' }),
-				format.splat(),
+				format.timestamp({ format: 'MM/DD/YY @ hh:mm:ss' }),
 				format.errors({ stack: true }),
 				customFileFormat
 			),

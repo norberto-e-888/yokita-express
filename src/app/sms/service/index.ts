@@ -1,5 +1,6 @@
 import twilio, { Twilio } from 'twilio'
 import env from '../../../env'
+import { logger } from '../../../lib'
 import { UserDocument, UserPhone, UserPlainObject } from '../../user'
 
 export const twilioClient = twilio(env.twilio.sid, env.twilio.authToken)
@@ -46,7 +47,7 @@ export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 				from: env.twilio.number
 			})
 		} catch (error) {
-			console.error(error)
+			logger.error('sms.service._send %o', error)
 		}
 	}
 
