@@ -11,11 +11,11 @@ export const handlePreSave: MongooseInstanceHook<UserDocument> = async function 
 		this.password = await brcrypt.hash(this.password, 8)
 	}
 
-	if (this.isModified('phone') && this.phone) {
+	if (this.isModified('phone') && this.phone && env.nodeEnv !== 'test') {
 		this.sendVerification('phone')
 	}
 
-	if (this.isModified('email')) {
+	if (this.isModified('email') && env.nodeEnv !== 'test') {
 		this.sendVerification('email')
 	}
 
