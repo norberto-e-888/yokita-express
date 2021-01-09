@@ -1,4 +1,17 @@
-const nodeEnv = process.env.NODE_ENV as 'test' | 'development' | 'production'
+import dotenvFlow from 'dotenv-flow'
+
+const filesToLoad = ['.env.development']
+
+if (process.env.NODE_ENV === 'test') {
+	filesToLoad.push('.env.test')
+}
+
+dotenvFlow.load(filesToLoad)
+const nodeEnv = (process.env.NODE_ENV || 'development') as
+	| 'test'
+	| 'development'
+	| 'production'
+
 if (!nodeEnv) {
 	throw new Error('NODE_ENV is not set.')
 }

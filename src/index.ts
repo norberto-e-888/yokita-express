@@ -1,7 +1,7 @@
 import 'express-async-errors'
 import express, { Express } from 'express'
-import configureApp from './config'
 import env from './env'
+import configureApp from './config'
 import { logger } from './lib'
 
 export default async function main(): Promise<Express> {
