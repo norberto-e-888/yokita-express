@@ -33,9 +33,9 @@ export const emailQueueWorker = new Worker<EmailJobsDataTypes, void, EmailJob>(
 
 			case EmailJob.SendErrorsToAdmins:
 				const pathToErrorsLog = `${__dirname}/../../logs/errors.log`
-				const attachement = fs.readFileSync(pathToErrorsLog).toString('base64')
+				const content = fs.readFileSync(pathToErrorsLog).toString('base64')
 				await emailService.sendErrorsToAdmin({
-					content: attachement,
+					content,
 					filename: 'boilerplate-errors.txt',
 					type: 'text'
 				})
