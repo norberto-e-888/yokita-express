@@ -5,7 +5,9 @@
 	"main": "src/index.ts",
 	"scripts": {
 		"dev": "ts-node-dev --transpile-only -r dotenv/config src/index.ts",
-		"test": "jest --watchAll --detectOpenHandles"
+		"test": "jest --watchAll --detectOpenHandles",
+		"build": "tsc",
+		"start": "node -r dotenv/config dist/index.js"
 	},
 	"repository": {
 		"type": "git",
