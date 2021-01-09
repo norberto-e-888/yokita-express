@@ -1,7 +1,4 @@
 import mongoose from 'mongoose'
-/* import env from '../env'
-
-mongoose.set('debug', env.nodeEnv === 'development') */
 
 export default async ({
 	mongoDbUri,
