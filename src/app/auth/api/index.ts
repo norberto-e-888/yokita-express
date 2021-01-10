@@ -10,7 +10,7 @@ import {
 	isVerificationResendRequestNotRedundantOrInvalid,
 	unauthenticatedOnly,
 	UnauthOnly
-} from '../../../lib'
+} from '../lib'
 import authController, { AuthController } from '../controller'
 
 export const authApiFactory = (deps: AuthApiFactoryDependencies) => {

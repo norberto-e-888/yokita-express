@@ -1,18 +1,16 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq'
-import IORedis from 'ioredis'
 import { cacheService } from '../../app/cache'
 import { UserPlainObject } from '../../app/user'
 import { CACHE_QUEUE_NAME } from '../../constants'
-
-const connection = new IORedis()
+import { redisConnection } from '../redis'
 
 export const cacheQueue = new Queue<CacheJobsDataTypes, void, CacheJob>(
 	CACHE_QUEUE_NAME,
-	{ connection, defaultJobOptions: { removeOnComplete: true } }
+	{ connection: redisConnection, defaultJobOptions: { removeOnComplete: true } }
 )
 
 export const cacheQueueScheduler = new QueueScheduler(CACHE_QUEUE_NAME, {
-	connection
+	connection: redisConnection
 })
 
 export const cacheQueueWorker = new Worker<CacheJobsDataTypes, void, CacheJob>(
@@ -40,7 +38,7 @@ export const cacheQueueWorker = new Worker<CacheJobsDataTypes, void, CacheJob>(
 		}
 	},
 	{
-		connection,
+		connection: redisConnection,
 		limiter: { max: 1000, duration: 1000 * 60 * 2 }
 	}
 )

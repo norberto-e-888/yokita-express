@@ -1,19 +1,17 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq'
-import IORedis from 'ioredis'
 import fs from 'fs'
 import { emailService } from '../../app/email'
 import { UserPlainObject } from '../../app/user'
 import { EMAIL_QUEUE_NAME } from '../../constants'
-
-const connection = new IORedis()
+import { redisConnection } from '../redis'
 
 export const emailQueue = new Queue<EmailJobsDataTypes, void, EmailJob>(
 	EMAIL_QUEUE_NAME,
-	{ connection, defaultJobOptions: { removeOnComplete: true } }
+	{ connection: redisConnection, defaultJobOptions: { removeOnComplete: true } }
 )
 
 export const emailQueueScheduler = new QueueScheduler(EMAIL_QUEUE_NAME, {
-	connection
+	connection: redisConnection
 })
 
 export const emailQueueWorker = new Worker<EmailJobsDataTypes, void, EmailJob>(
@@ -48,7 +46,7 @@ export const emailQueueWorker = new Worker<EmailJobsDataTypes, void, EmailJob>(
 		}
 	},
 	{
-		connection,
+		connection: redisConnection,
 		limiter: { max: 1000, duration: 1000 * 60 * 2 }
 	}
 )

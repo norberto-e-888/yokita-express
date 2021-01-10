@@ -1,21 +1,19 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq'
-import IORedis from 'ioredis'
 import { smsService } from '../../app/sms'
 import { UserPlainObject } from '../../app/user'
 import { SMS_QUEUE_NAME } from '../../constants'
-
-const connection = new IORedis()
+import { redisConnection } from '../redis'
 
 export const smsQueue = new Queue<SMSJobsDataTypes, void, SMSJob>(
 	SMS_QUEUE_NAME,
 	{
-		connection,
+		connection: redisConnection,
 		defaultJobOptions: { removeOnComplete: true }
 	}
 )
 
 export const smsQueueScheduler = new QueueScheduler(SMS_QUEUE_NAME, {
-	connection
+	connection: redisConnection
 })
 
 export const smsQueueWorker = new Worker<SMSJobsDataTypes, void, SMSJob>(
@@ -43,7 +41,7 @@ export const smsQueueWorker = new Worker<SMSJobsDataTypes, void, SMSJob>(
 		}
 	},
 	{
-		connection,
+		connection: redisConnection,
 		limiter: { max: 1000, duration: 1000 * 60 * 2 }
 	}
 )

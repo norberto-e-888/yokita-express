@@ -1,23 +1,21 @@
 import { Queue, QueueScheduler, Worker } from 'bullmq'
-import IORedis from 'ioredis'
 import { blacklistService } from '../../app/blacklist'
 import { BLACKLIST_QUEUE_NAME } from '../../constants'
-
-const connection = new IORedis()
+import { redisConnection } from '../redis'
 
 export const blacklistQueue = new Queue<
 	BlacklistJobsDataTypes,
 	void,
 	BlacklistJob
 >(BLACKLIST_QUEUE_NAME, {
-	connection,
+	connection: redisConnection,
 	defaultJobOptions: { removeOnComplete: true }
 })
 
 export const blacklistQueueScheduler = new QueueScheduler(
 	BLACKLIST_QUEUE_NAME,
 	{
-		connection
+		connection: redisConnection
 	}
 )
 
@@ -51,7 +49,7 @@ export const blacklistQueueWorker = new Worker<
 		}
 	},
 	{
-		connection,
+		connection: redisConnection,
 		limiter: { max: 1000, duration: 1000 * 60 * 2 }
 	}
 )

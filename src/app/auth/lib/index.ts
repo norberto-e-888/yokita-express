@@ -1,9 +1,9 @@
 import { authenticate } from '@yokita/common'
-import { cacheService } from '../../app/cache'
-import { userModel } from '../../app/user'
-import { UserRole } from '../../app/user/typings'
-import env from '../../env'
-import { AppExtraCondition } from '../../typings'
+import { AppExtraCondition } from '../../../typings'
+import { cacheService } from '../../../app/cache'
+import { userModel } from '../../../app/user'
+import { UserRole } from '../../../app/user/typings'
+import env from '../../../env'
 
 export const baseAuthenticate = authenticate({
 	userModel,

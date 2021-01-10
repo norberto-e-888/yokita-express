@@ -1,4 +1,3 @@
-export { default as userApi } from './api'
 export * from './api'
 export { default as userController } from './controller'
 export * from './controller'

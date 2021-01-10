@@ -1,4 +1,6 @@
-export * from './auth'
 export { default as logger } from './logger'
 export * from './rate-limiting'
+export * from './redis'
+export { default as sendgridClient } from './sendgrid'
+export { default as twilioClient } from './twilio'
 export * from './work-queues'

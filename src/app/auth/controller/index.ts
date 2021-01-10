@@ -10,11 +10,12 @@ import {
 	BlacklistJob,
 	BlacklistJobsData,
 	blacklistQueue,
-	BlacklistQueue
+	BlacklistQueue,
+	redisClient
 } from '../../../lib'
 import { RedisClient } from 'redis'
 import { blacklistService, BlacklistService } from '../../blacklist'
-import { CacheService, redisClient } from '../../cache/service'
+import { CacheService } from '../../cache/service'
 import { cacheService } from '../../cache'
 import { userRepository } from '../../user'
 

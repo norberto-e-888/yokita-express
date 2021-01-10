@@ -1,9 +1,8 @@
-import twilio, { Twilio } from 'twilio'
+import { Twilio } from 'twilio'
 import env from '../../../env'
-import { logger } from '../../../lib'
+import { logger, twilioClient } from '../../../lib'
 import { UserDocument, UserPhone, UserPlainObject } from '../../user'
 
-export const twilioClient = twilio(env.twilio.sid, env.twilio.authToken)
 export const smsServiceFactory = (deps: SmsFactoryDependencies) => {
 	async function sendVerification(
 		user: UserDocument | UserPlainObject,

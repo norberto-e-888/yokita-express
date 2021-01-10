@@ -1,11 +1,6 @@
-import redis, { Callback, RedisClient } from 'redis'
-import { logger } from '../../../lib'
+import { Callback, RedisClient } from 'redis'
+import { redisClient } from '../../../lib/redis'
 import { UserPlainObject } from '../../user'
-
-export const redisClient = redis.createClient()
-redisClient.on('error', function (error) {
-	logger.error('cache.redisClient %o', error)
-})
 
 export const cacheServiceFactory = (deps: ChacheServiceDependencies) => {
 	function cacheUser(user: UserPlainObject, cb?: Callback<number>): boolean {
