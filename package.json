@@ -1,7 +1,7 @@
 {
-	"name": "backend-boilerplate",
+	"name": "express-yokita",
 	"version": "1.0.0",
-	"description": "Node.js API Boilerplate",
+	"description": "Express.js boilerplate",
 	"main": "src/index.ts",
 	"scripts": {
 		"dev": "ts-node-dev --transpile-only src/index.ts",
@@ -11,7 +11,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/norberto-e-888/backend-boilerplate.git"
+		"url": "git+https://github.com/norberto-e-888/yokita-express.git"
 	},
 	"author": "Norberto E. Cáceres C.",
 	"license": "SEE LICENSE IN LICENSE",
