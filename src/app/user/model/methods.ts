@@ -65,7 +65,7 @@ export const isPasswordValid: UserMethodIsPasswordValid = async function (
 ) {
 	const isValid = await brcrypt.compare(triedPassword, this.password)
 	if (!isValid && options.throwIfInvalid) {
-		throw new AppError('Invalid credentials.', 403)
+		throw new AppError('Invalid credentials.', 401)
 	}
 
 	return isValid
