@@ -29,7 +29,6 @@ export const authControllerFactory = (deps: AuthControllerDependencies) => {
 			const authResult = await deps.authService.signUp(req.body)
 			return _sendAuthenticationResult(res, authResult, true)
 		} catch (error) {
-			console.log('SIGN UP ERROR', error)
 			return next(error)
 		}
 	}
