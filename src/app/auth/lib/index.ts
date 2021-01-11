@@ -12,7 +12,7 @@ export const baseAuthenticate = authenticate({
 	jwtIn: 'cookies',
 	jwtKeyName: 'accessToken',
 	ignoreExpirationURLs: ['/auth/refresh']
-})
+}) // partial application of 2nd degree
 
 export const unauthenticatedOnly = authenticate({
 	jwtSecret: env.auth.jwtSecretAccessToken,
@@ -20,7 +20,7 @@ export const unauthenticatedOnly = authenticate({
 	jwtKeyName: 'accessToken',
 	isProtected: false,
 	unauthenticatedOnly: true
-})()()
+})()() // complete application
 
 export const populateUser = authenticate({
 	userModel,
@@ -29,19 +29,19 @@ export const populateUser = authenticate({
 	jwtIn: 'cookies',
 	jwtKeyName: 'accessToken',
 	isProtected: false
-})()()
+})()() // complete application
 
-export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin)
+export const superadminAuthenticate = baseAuthenticate(UserRole.SuperAdmin) // partial application of 1st degree
 export const adminAuthenticate = baseAuthenticate(
 	UserRole.Admin,
 	UserRole.SuperAdmin
-)
+) // partial application of 1st degree
 
 export const endUserAuthenticate = baseAuthenticate(
 	UserRole.EndUser,
 	UserRole.Admin,
 	UserRole.SuperAdmin
-)
+) // partial application of 1st degree
 
 export const isNotInProcessOf2FA: AppExtraCondition = (user) => {
 	return {
