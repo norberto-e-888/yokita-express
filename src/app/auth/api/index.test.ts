@@ -18,9 +18,10 @@ describe('/auth', () => {
 			expect(response.status).toBe(200)
 			const user = await userModel.findOne({ email: validSignUpDto.email })
 			expect(
-				await user?.isPasswordValid(validChangePasswordDto.newPassword, {
-					throwIfInvalid: false
-				})
+				user &&
+					(await user.isPasswordValid(validChangePasswordDto.newPassword, {
+						throwIfInvalid: false
+					}))
 			).toBe(true)
 		})
 	})
