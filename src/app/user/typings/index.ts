@@ -85,7 +85,8 @@ export type SetCodeProperties =
 
 export type UserStaticIsEmailInUser = (
 	this: UserModel,
-	email: string
+	email: string,
+	options?: { throwIfExists: boolean }
 ) => Promise<boolean>
 
 export type UserMethodSetCode = (

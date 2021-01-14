@@ -41,7 +41,7 @@ import {
 
 export const authServiceFactory = (deps: AuthServiceDependencies) => {
 	async function signUp(signUpDto: SignUpDto): Promise<AuthenticationResult> {
-		await deps.userModel.isEmailInUse(signUpDto.email)
+		await deps.userModel.isEmailInUse(signUpDto.email, { throwIfExists: true })
 		const newUser = (await deps.userRepository.create<SignUpDto>(signUpDto, {
 			returnPlainObject: false
 		})) as UserDocument
