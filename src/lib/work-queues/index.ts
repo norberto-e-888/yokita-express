@@ -8,8 +8,7 @@ export async function configureQueues(): Promise<void> {
 	await cacheQueueScheduler.waitUntilReady()
 	await emailQueueScheduler.waitUntilReady()
 	await smsQueueScheduler.waitUntilReady()
-
-	emailQueue.add(EmailJob.SendErrorsToAdmins, undefined, {
+	await emailQueue.add(EmailJob.SendErrorsToAdmins, undefined, {
 		repeat: { cron: '0 0 0 * * ?' },
 		attempts: 3
 	})
